@@ -1,6 +1,7 @@
 import { announcement as data } from './invitation.js';
 import { playWelcomeConfetti, studioConfetti, skyConfetti } from './confetti.js';
 import { motion, onEnter, releaseBalloons, addEffect, drift } from './motion.js';
+import { googleCalendarUrl } from './calendar.js';
 
 // Always open at the top, where the greeting is, even on a reload or when coming back to the tab's
 // history. (index.html also turns off the browser's own scroll restoration as early as it can.)
@@ -238,41 +239,16 @@ function updateCountdown() {
 updateCountdown();
 setInterval(updateCountdown, 1000);
 
-// RFC 5545: all-day event, exclusive end date, UTF-8 lines folded at 75 octets.
-const icsEscape = (value) => value.replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
-function foldLine(line) {
-  let folded = '', bytes = 0;
-  for (const character of line) {
-    const size = new TextEncoder().encode(character).length;
-    if (bytes + size > 75) { folded += '\r\n '; bytes = 1; }
-    folded += character;
-    bytes += size;
-  }
-  return folded;
-}
-$('#save-calendar').addEventListener('click', () => {
-  const nextDay = new Date(Date.UTC(year, month - 1, day + 1)).toISOString().slice(0, 10).replace(/-/g, '');
-  const lines = [
-    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Wedding Announcement//KO',
-    'CALSCALE:GREGORIAN', 'BEGIN:VEVENT',
-    `UID:${data.date}-${encodeURIComponent(couple)}@wedding-announcement`,
-    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,
-    `DTSTART;VALUE=DATE:${data.date.replace(/-/g, '')}`,
-    `DTEND;VALUE=DATE:${nextDay}`,
-    `SUMMARY:${icsEscape(`${couple} 결혼기념일`)}`,
-    `DESCRIPTION:${icsEscape('두 사람이 부부가 되는 날입니다. 별도의 결혼식은 진행하지 않습니다.')}`,
-    'TRANSP:TRANSPARENT', 'END:VEVENT', 'END:VCALENDAR'
-  ];
-  const url = URL.createObjectURL(new Blob([lines.map(foldLine).join('\r\n') + '\r\n'], { type: 'text/calendar;charset=utf-8' }));
-  const a = make('a');
-  a.href = url;
-  a.download = 'our-anniversary.ics';
-  document.body.append(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
-  toast('내려받은 기념일 파일을 캘린더 앱에서 열어 주세요.');
-});
+// Adding the day to a calendar without saving a file: Google Calendar opens with the event filled in,
+// and an iPhone shows its own "add to calendar" sheet when the published .ics is opened as a link.
+const iPhone = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+$('#calendar-google').href = googleCalendarUrl(data);
+$('#calendar-apple').href = new URL('./assets/anniversary.ics', import.meta.url).href;
+// Whichever calendar the phone most likely uses comes first.
+if (iPhone) $('#calendar-choices').prepend($('#calendar-apple'));
+$('#save-calendar').addEventListener('click', () => $('#calendar-dialog').showModal());
+$('#close-calendar').addEventListener('click', () => $('#calendar-dialog').close());
+for (const link of document.querySelectorAll('#calendar-choices a')) link.addEventListener('click', () => $('#calendar-dialog').close());
 
 let toastTimer;
 function toast(message) {

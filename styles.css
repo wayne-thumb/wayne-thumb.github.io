@@ -737,6 +737,23 @@ dialog {
   font-size:.875rem;
 }
 
+.dialog-choices {
+  display:grid;
+  gap:10px;
+}
+
+.copy-dialog .dialog-note {
+  margin:16px 0 6px;
+  font-size:.8125rem;
+  color:var(--muted);
+}
+
+.dialog-close {
+  width:100%;
+  border-color:#c7d2dc;
+  background:transparent;
+}
+
 .copy-dialog input {
   width:100%;
   margin-bottom:18px;

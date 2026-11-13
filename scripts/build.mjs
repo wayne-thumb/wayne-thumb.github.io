@@ -1,6 +1,7 @@
 import { access, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { announcement } from '../invitation.js';
+import { icsText } from '../calendar.js';
 
 const day = new Date(`${announcement.date}T00:00:00Z`);
 if (!/^\d{4}-\d{2}-\d{2}$/.test(announcement.date) || !Number.isFinite(day.getTime()) || day.toISOString().slice(0, 10) !== announcement.date) {
@@ -27,13 +28,16 @@ for (const account of announcement.gift?.accounts ?? []) {
 }
 if (missing.length) throw new Error(`사진 파일이 없습니다. scripts/photos.mjs 를 확인하세요:\n${missing.join('\n')}`);
 
+// The anniversary as a calendar file that the page links to; kept in assets so `npm run dev` has it too.
+await writeFile('assets/anniversary.ics', icsText(announcement));
+
 await rm('dist', { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
-for (const file of ['styles.css', 'app.js', 'confetti.js', 'motion.js', 'invitation.js', 'assets']) await cp(file, `dist/${file}`, { recursive: true });
+for (const file of ['styles.css', 'app.js', 'confetti.js', 'motion.js', 'calendar.js', 'invitation.js', 'assets']) await cp(file, `dist/${file}`, { recursive: true });
 // Keep HTML, configuration, and animation in sync when a previous visit is cached.
-const sources = await Promise.all(['app.js', 'confetti.js', 'motion.js', 'invitation.js', 'styles.css'].map((file) => readFile(file, 'utf8')));
+const sources = await Promise.all(['app.js', 'confetti.js', 'motion.js', 'calendar.js', 'invitation.js', 'styles.css'].map((file) => readFile(file, 'utf8')));
 const version = createHash('sha256').update(sources.join('\n')).digest('hex').slice(0, 12);
-await writeFile('dist/app.js', sources[0].replace(/from '(\.\/(?:invitation|confetti|motion)\.js)'/g, (_, path) => `from '${path}?v=${version}'`));
+await writeFile('dist/app.js', sources[0].replace(/from '(\.\/(?:invitation|confetti|motion|calendar)\.js)'/g, (_, path) => `from '${path}?v=${version}'`));
 const escape = (value) => value.replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 const title = escape(`${announcement.groom.name} · ${announcement.bride.name}, 부부가 됩니다`);
 const description = escape(`${new Intl.DateTimeFormat('ko-KR', { timeZone: 'UTC', dateStyle: 'long' }).format(day)}, 소중한 분들께 저희의 결혼 소식을 전합니다. 별도의 결혼식은 진행하지 않습니다.`);
