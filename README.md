@@ -4,7 +4,7 @@
 
 색종이가 흩날리는 사진관 사진 위에 붓글씨 인사말이 써지고 같은 모양의 동그란 색종이가 터지며 시작해, 사진 37장을 보여 주고, 파란 하늘 아래 두 사람이 인사하는 사진으로 끝납니다. 색은 사진의 하늘·잔디·하트 풍선에서 가져왔고, 글꼴은 본문에 함렛(Hahmlet), 큰 인사말에 나눔손글씨 붓(Nanum Brush Script)을 씁니다. HTML·CSS·JavaScript로 작성했으며 백엔드가 없습니다.
 
-배포 주소: https://kaineus.github.io/mobile-invitation/
+배포 주소: https://wayne-thumb.github.io/
 
 ## 로컬 실행
 
@@ -51,8 +51,8 @@ Windows PowerShell에서 `npm.ps1` 실행 정책 오류가 나면 `npm` 대신 `
 
 | 보낼 링크 | 보이는 내용 |
 | --- | --- |
-| `https://kaineus.github.io/mobile-invitation/` | 소식만 전합니다. 계좌번호는 보이지 않습니다. |
-| `https://kaineus.github.io/mobile-invitation/p` | 사진 아래에 "마음 전하실 곳"과 계좌번호, 복사 버튼이 함께 보입니다. |
+| `https://wayne-thumb.github.io/` | 소식만 전합니다. 계좌번호는 보이지 않습니다. |
+| `https://wayne-thumb.github.io/p` | 사진 아래에 "마음 전하실 곳"과 계좌번호, 복사 버튼이 함께 보입니다. |
 
 계좌는 `invitation.js`의 `gift.accounts`에 `{ label: '신랑 나동규', bank: '○○은행', number: '000-00-0000000', holder: '나동규' }` 형태로 적습니다. **지금 들어 있는 값은 자리만 잡아 둔 것이니 실제 은행과 계좌번호로 바꿔야 합니다.** 목록을 비우면 두 링크 모두 계좌를 표시하지 않습니다. 페이지 안의 공유·링크 복사 버튼은 지금 열려 있는 주소를 그대로 보냅니다.
 
@@ -86,15 +86,15 @@ git commit -m "feat: update wedding announcement"
 git push origin main
 ```
 
-원격 저장소는 HTTPS로 연결했습니다. SSH 키가 등록되면 `git remote set-url origin git@github.com:kaineus/mobile-invitation.git`으로 바꿀 수 있습니다.
+저장소는 `wayne-thumb` 조직의 `wayne-thumb.github.io`입니다. 이름이 `<조직 이름>.github.io`인 저장소라서 주소 뒤에 저장소 이름이 붙지 않고 `https://wayne-thumb.github.io/`로 바로 열립니다. 조직 이름을 바꾸면 저장소 이름도 `<새 이름>.github.io`로 바꾸고 `invitation.js`의 `siteUrl`을 고쳐 다시 배포해야 하며, 예전 주소는 새 주소로 넘어가지 않고 끊깁니다.
 
 ## 나중에 도메인 연결하기
 
-현재 `kaineus.github.io/mobile-invitation/` 주소는 무료로 사용할 수 있습니다. 별도 도메인이 없어도 배포할 수 있습니다. 무료 도메인/서브도메인 제공 업체는 DNS 레코드 수정 권한과 제공 기간·갱신 조건을 확인한 뒤 선택하세요. 별도 도메인은 아직 등록하거나 연결하지 않았습니다.
+현재 `wayne-thumb.github.io` 주소는 무료로 사용할 수 있습니다. 별도 도메인이 없어도 배포할 수 있습니다. 무료 도메인/서브도메인 제공 업체는 DNS 레코드 수정 권한과 제공 기간·갱신 조건을 확인한 뒤 선택하세요. 별도 도메인은 아직 등록하거나 연결하지 않았습니다.
 
 1. 사용할 도메인을 확보하고 GitHub에서 도메인 소유권을 검증합니다.
 2. 저장소 **Settings → Pages → Custom domain**에 주소를 입력합니다.
-3. 서브도메인은 DNS `CNAME`을 `kaineus.github.io`로 설정합니다. `/mobile-invitation/` 경로는 DNS에 넣지 않습니다.
+3. 서브도메인은 DNS `CNAME`을 `wayne-thumb.github.io`로 설정합니다.
 4. 루트 도메인은 GitHub 문서의 최신 `A` 또는 `ALIAS`/`ANAME` 레코드를 사용합니다.
 5. DNS 반영과 인증서 발급 후 **Enforce HTTPS**를 켭니다.
 

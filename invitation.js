@@ -3,7 +3,7 @@
 // 원본에서 다시 만들려면 scripts/photos.mjs 에 추가한 뒤 `npm run photos` 를 실행하세요.
 export const announcement = {
   // 배포 주소. 메신저 공유 미리보기 사진(og:image)의 절대 경로에 쓰입니다.
-  siteUrl: 'https://kaineus.github.io/mobile-invitation/',
+  siteUrl: 'https://wayne-thumb.github.io/',
   // 첫 화면(색종이 사진)과 마지막 인사 사진에서 터지는 동그란 색종이. false 로 끌 수 있습니다.
   welcomeConfetti: true,
   // family 는 선택 사항입니다. 예: '나○○ · 김○○의 아들'
