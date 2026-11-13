@@ -1012,6 +1012,11 @@ dialog {
   height:100%;
 }
 
+/* Sparks are light: adding them to the photo (instead of painting over it) lets the glow fall on the faces. */
+.effect-sparks canvas {
+  mix-blend-mode:screen;
+}
+
 .effect i {
   position:absolute;
   left:var(--x);

@@ -92,54 +92,83 @@ export function addEffect(frame, effect, at) {
   whileVisible(frame);
 }
 
+// A sparkler, alive: a steady fizz of sparks with a stronger burst every half second or so.
+// Sparks leave streaks, slow in the air and arc downward, some split into smaller ones partway out,
+// and the glow around the sparkler swells with each burst. The canvas is blended onto the photo as light
+// (see .effect-sparks in styles.css), so the glow falls on the two faces the way the real one does.
 function crackle(frame, layer, [x, y]) {
   const canvas = element('canvas', '');
   const context = canvas.getContext('2d');
   if (!context) return;
   layer.append(canvas);
   const sparks = [];
-  let width, height, running = false, last = 0;
+  let width, height, scale, running = false, last = 0, nextBurst = 0, heat = 0;
   function resize() {
     const ratio = Math.min(window.devicePixelRatio || 1, 2);
     width = frame.clientWidth;
     height = frame.clientHeight;
+    scale = width / 390;
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
+  }
+  function spark(fromX, fromY, speed, life, size, splits) {
+    const angle = random(0, Math.PI * 2);
+    sparks.push({ x: fromX, y: fromY, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, age: 0, life, size, splits });
+  }
+  function glow(centreX, centreY, radius, colour) {
+    const gradient = context.createRadialGradient(centreX, centreY, 0, centreX, centreY, radius);
+    gradient.addColorStop(0, colour);
+    gradient.addColorStop(1, 'rgba(255,150,60,0)');
+    context.fillStyle = gradient;
+    context.fillRect(centreX - radius, centreY - radius, radius * 2, radius * 2);
   }
   function draw(now) {
     if (!running) return;
     const step = Math.min((now - last) / 1000, 0.05);
     last = now;
-    const scale = width / 390;
     const originX = x * width, originY = y * height;
+
+    // The fizz never stops; a burst throws many more sparks, faster and farther, and heats the glow.
+    let count = 4;
+    if (now >= nextBurst) {
+      count += Math.round(random(26, 48));
+      nextBurst = now + random(280, 900);
+      heat = 1;
+    }
+    heat = Math.max(0, heat - step * 2.4);
+    if (sparks.length < 700) {
+      for (let index = 0; index < count; index++) {
+        spark(originX + random(-2, 2) * scale, originY + random(-2, 2) * scale,
+          random(70, 300 + 280 * heat) * scale, random(0.22, 0.8), random(0.9, 2), Math.random() < 0.24);
+      }
+    }
+
     context.clearRect(0, 0, width, height);
     context.globalCompositeOperation = 'lighter';
-    const glowSize = random(22, 34) * scale;
-    const glow = context.createRadialGradient(originX, originY, 0, originX, originY, glowSize);
-    glow.addColorStop(0, 'rgba(255,238,200,.5)');
-    glow.addColorStop(1, 'rgba(255,190,110,0)');
-    context.fillStyle = glow;
-    context.fillRect(originX - glowSize, originY - glowSize, glowSize * 2, glowSize * 2);
-    for (let index = 0; index < 3; index++) {
-      const angle = random(0, Math.PI * 2);
-      const speed = random(50, 210) * scale;
-      sparks.push({ x: originX, y: originY, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, age: 0, life: random(0.16, 0.5) });
-    }
+    glow(originX, originY, (110 + 80 * heat + random(0, 16)) * scale, `rgba(255,170,80,${0.1 + 0.12 * heat})`);
+    glow(originX, originY, (20 + 18 * heat + random(0, 8)) * scale, 'rgba(255,244,214,.9)');
     context.lineCap = 'round';
+    const drag = Math.exp(-2.2 * step);
     for (let index = sparks.length - 1; index >= 0; index--) {
-      const spark = sparks[index];
-      spark.age += step;
-      if (spark.age >= spark.life) { sparks.splice(index, 1); continue; }
-      spark.vy += 130 * scale * step;
-      spark.x += spark.vx * step;
-      spark.y += spark.vy * step;
-      const fade = 1 - spark.age / spark.life;
-      context.strokeStyle = `rgba(255,${200 + Math.round(45 * fade)},${120 + Math.round(110 * fade)},${fade})`;
-      context.lineWidth = 1.5 * scale * fade + 0.3;
+      const one = sparks[index];
+      one.age += step;
+      if (one.age >= one.life) { sparks.splice(index, 1); continue; }
+      one.vx *= drag;
+      one.vy = one.vy * drag + 190 * scale * step;
+      one.x += one.vx * step;
+      one.y += one.vy * step;
+      const left = 1 - one.age / one.life;
+      if (one.splits && left < 0.55) {
+        one.splits = false;
+        for (let child = 0; child < 3; child++) spark(one.x, one.y, random(60, 180) * scale, random(0.12, 0.3), 0.8, false);
+      }
+      // White-hot at first, then yellow, then orange as it cools; the streak trails the way it came.
+      context.strokeStyle = `rgba(255,${190 + Math.round(60 * left)},${90 + Math.round(150 * left * left)},${Math.min(1, left * 1.6)})`;
+      context.lineWidth = Math.max(0.4, one.size * scale * left);
       context.beginPath();
-      context.moveTo(spark.x - spark.vx * 0.03, spark.y - spark.vy * 0.03);
-      context.lineTo(spark.x, spark.y);
+      context.moveTo(one.x - one.vx * 0.045, one.y - one.vy * 0.045);
+      context.lineTo(one.x, one.y);
       context.stroke();
     }
     requestAnimationFrame(draw);
@@ -150,6 +179,7 @@ function crackle(frame, layer, [x, y]) {
     if (!visible) return;
     resize();
     last = performance.now();
+    nextBurst = last + 200;
     requestAnimationFrame(draw);
   });
 }
