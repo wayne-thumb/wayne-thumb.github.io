@@ -239,16 +239,28 @@ function updateCountdown() {
 updateCountdown();
 setInterval(updateCountdown, 1000);
 
-// Adding the day to a calendar without saving a file: Google Calendar opens with the event filled in,
-// and an iPhone shows its own "add to calendar" sheet when the published .ics is opened as a link.
+// Adding the day to a calendar without ever saving a file.
+// Anywhere but an iPhone, the button is simply a link to Google Calendar with the event filled in;
+// an .ics there would only be downloaded, so it is not offered at all.
+// On an iPhone the button opens a chooser: its own calendar (Safari answers the published .ics, opened as a
+// link, with an "add to calendar" sheet) or Google Calendar.
 const iPhone = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const save = $('#save-calendar');
 $('#calendar-google').href = googleCalendarUrl(data);
-$('#calendar-apple').href = new URL('./assets/anniversary.ics', import.meta.url).href;
-// Whichever calendar the phone most likely uses comes first.
-if (iPhone) $('#calendar-choices').prepend($('#calendar-apple'));
-$('#save-calendar').addEventListener('click', () => $('#calendar-dialog').showModal());
-$('#close-calendar').addEventListener('click', () => $('#calendar-dialog').close());
-for (const link of document.querySelectorAll('#calendar-choices a')) link.addEventListener('click', () => $('#calendar-dialog').close());
+if (iPhone) {
+  $('#calendar-apple').href = new URL('./assets/anniversary.ics', import.meta.url).href;
+  save.addEventListener('click', () => $('#calendar-dialog').showModal());
+  $('#close-calendar').addEventListener('click', () => $('#calendar-dialog').close());
+  for (const link of document.querySelectorAll('#calendar-choices a')) link.addEventListener('click', () => $('#calendar-dialog').close());
+} else {
+  const link = make('a', save.className, save.textContent);
+  link.id = save.id;
+  link.setAttribute('style', save.getAttribute('style') ?? '');
+  link.href = googleCalendarUrl(data);
+  link.target = '_blank';
+  link.rel = 'noopener';
+  save.replaceWith(link);
+}
 
 let toastTimer;
 function toast(message) {
