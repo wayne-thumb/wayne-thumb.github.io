@@ -76,12 +76,31 @@ npm run photos -- portrait-bride cover   # 적은 id 만 다시 만들기
 
 공유는 휴대폰의 기본 공유창을 사용하고, 지원하지 않으면 링크를 복사합니다. "캘린더에 추가"는 파일을 내려받지 않습니다. 아이폰이 아닌 기기(안드로이드, PC)에서는 버튼이 곧바로 구글 캘린더를 열어 일정이 채워진 화면을 보여 줍니다. 아이폰에서는 선택 창이 뜨고, "아이폰 캘린더"는 빌드 때 만들어지는 `assets/anniversary.ics`를 링크로 열어 사파리의 추가 화면을 띄웁니다. 일정은 시간·장소 없는 종일 일정입니다. 디데이는 열람자의 시간대와 관계없이 한국 시간을 기준으로 계산합니다. 검색 엔진에는 노출되지 않도록 `noindex`를 넣어 두었습니다. 축하 메시지 수집(방명록)처럼 서버가 필요한 기능은 포함하지 않습니다.
 
+## QR 코드
+
+`npm run qr`은 두 주소 각각의 QR 코드를 `qr/` 폴더에 PNG(1400×1400)로 만듭니다. 이름 끝에 `-p`가 붙은 것이 계좌가 보이는 주소(`/p`)용입니다.
+
+| 파일 | 모양 |
+| --- | --- |
+| `qr-sunglasses` | 검은 점 QR 가운데 동그란 창에 선글라스 사진 |
+| `qr-night` | 가운데 창에 불꽃을 든 두 사람, 점마다 같은 밤 사진이 비침 |
+| `qr-dots-skyline`, `qr-dots-sparkler`, `qr-dots-sunglasses` | 사진 전체 위에 흰 점·검은 점을 찍은 모양 |
+
+만든 그림을 여러 크기로 줄이고 흐리게 해서 다시 읽어 보고, 주소가 그대로 나오지 않으면 실패합니다. 그래도 인쇄하거나 돌리기 전에 실제 휴대폰 카메라로 꼭 찍어 보세요. 사진 위에 점을 찍은 모양은 가운데 사진 모양보다 덜 안정적입니다. 인쇄할 때는 가로 2.5cm 이상으로, 바깥 흰 여백을 자르지 마세요.
+
+QR에는 주소가 그대로 들어 있어서, 주소가 바뀌면(`siteUrl`, `gift.path`, 조직 이름) 다시 만들어야 하고 이미 인쇄한 것은 쓸 수 없습니다.
+
+```sh
+npm install
+npm run qr
+```
+
 ## GitHub Pages
 
 `main`에 push하면 `.github/workflows/pages.yml`이 구문 검사 → 빌드 → Pages 배포를 실행합니다. GitHub **Settings → Pages → Build and deployment → Source**는 **GitHub Actions**로 설정합니다. 진행 상황은 저장소의 **Actions**에서 확인합니다.
 
 ```sh
-git add .
+git add -A
 git commit -m "feat: update wedding announcement"
 git push origin main
 ```
