@@ -5,15 +5,18 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/serve.mjs",
-    "lint": "node --check app.js && node --check confetti.js && node --check motion.js && node --check invitation.js && node --check scripts/build.mjs && node --check scripts/serve.mjs && node --check scripts/photos.mjs",
+    "lint": "node --check app.js && node --check confetti.js && node --check motion.js && node --check calendar.js && node --check invitation.js && node --check scripts/build.mjs && node --check scripts/serve.mjs && node --check scripts/photos.mjs && node --check scripts/qr.mjs",
     "build": "node scripts/build.mjs",
     "preview": "node scripts/serve.mjs dist",
-    "photos": "node scripts/photos.mjs"
+    "photos": "node scripts/photos.mjs",
+    "qr": "node scripts/qr.mjs"
   },
   "engines": {
     "node": ">=22"
   },
   "devDependencies": {
+    "jsqr": "^1.4.0",
+    "qrcode": "^1.5.4",
     "sharp": "^0.35.5"
   }
 }
