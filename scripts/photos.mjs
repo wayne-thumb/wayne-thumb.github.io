@@ -18,8 +18,10 @@ const photos = [
   ['closing', `${sky}/DSC02646 0.jpg`, { large: true }],
   ['portrait-bride', `${studio}/MOS_6705.jpg`, { crop: [0.115, 0.445, 0.38, 0.3404] }],
   ['portrait-groom', `${studio}/MOS_6705.jpg`, { crop: [0.5, 0.445, 0.38, 0.3404] }],
-  ['shades-bride', `${studio}/MOS_6983.jpg`, { crop: [0.19, 0.13, 0.32, 0.2844] }],
-  ['shades-groom', `${studio}/MOS_6983.jpg`, { crop: [0.492, 0.01, 0.42, 0.3733] }],
+  // The two sunglasses portraits are cut as a pair: sunglasses at the same height, faces the same size,
+  // each leaning toward the other across the gap between the frames.
+  ['shades-bride', `${studio}/MOS_6983.jpg`, { crop: [0.1618, 0.1177, 0.3462, 0.3077] }],
+  ['shades-groom', `${studio}/MOS_6983.jpg`, { crop: [0.497, 0.0241, 0.3894, 0.3461] }],
   ['studio-shades-close', `${studio}/MOS_7025.jpg`],
   ['studio-glance', `${studio}/MOS_6397.jpg`],
   ['studio-ribbon', `${studio}/MOS_6653.jpg`],
