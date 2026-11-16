@@ -78,15 +78,6 @@ a {
   display:none!important;
 }
 
-.sr-only {
-  position:absolute;
-  width:1px;
-  height:1px;
-  overflow:hidden;
-  clip-path:inset(50%);
-  white-space:nowrap;
-}
-
 /* A white ring inside a dark one stays visible on sky, paper, grass, and night alike. */
 :focus-visible {
   outline:2px solid #fff;
@@ -185,8 +176,13 @@ h2 {
   padding:0 .12em;
 }
 
+/* The second line starts further in than the first, the way brushwork steps down a page. */
 .cover h1 span:first-child {
-  transform:translateX(-34%);
+  transform:translateX(-6%);
+}
+
+.cover h1 span:last-child {
+  transform:translateX(14%);
 }
 
 .cover-date {
@@ -233,96 +229,38 @@ h2 {
   color:var(--sky-top);
 }
 
-/* The day, on a block of the same sky */
+/* The day, on a band of the same sky. It is only a small line: there is nothing to come to on it. */
 .date {
-  padding:76px var(--gutter) 80px;
+  padding:56px var(--gutter) 62px;
   background:linear-gradient(var(--sky-top),var(--sky));
   color:#fff;
 }
 
-.date-line {
-  margin-top:6px;
-  font-size:.875rem;
+/* A heart balloon like the ones the two are holding marks it. */
+.heart-balloon {
+  display:block;
+  width:48px;
+  height:48px;
+  margin:0 auto 12px;
+  padding:0;
+  border:0;
+  background:var(--balloon) center/contain no-repeat;
+}
+
+.date h2 {
+  font-size:1.125rem;
+  text-wrap:balance;
+}
+
+.date-day {
+  margin-top:10px;
+  font-size:.8125rem;
+  letter-spacing:.22em;
   opacity:.84;
 }
 
-.calendar {
-  width:100%;
-  max-width:340px;
-  margin:34px auto 0;
-  table-layout:fixed;
-  border-collapse:collapse;
-}
-
-.calendar th {
-  height:34px;
-  font-size:.75rem;
-  font-weight:400;
-  opacity:.74;
-}
-
-.calendar td {
-  height:48px;
-  padding:0;
-  font-size:.9375rem;
-}
-
-.calendar td:first-child,.calendar th:first-child {
-  color:#ffd0db;
-}
-
-.calendar td span,.calendar .wedding-day {
-  display:inline-grid;
-  place-items:center;
-  width:46px;
-  height:46px;
-}
-
-/* The date is written on a red heart balloon like the ones the two are holding. */
-.calendar .wedding-day {
-  padding:0 0 5px;
-  border:0;
-  background:var(--heart) center/contain no-repeat;
-  color:#fff;
-  font-weight:700;
-}
-
-.countdown {
-  margin-top:34px;
-  font-size:.875rem;
-  opacity:.9;
-}
-
-.ticker {
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  margin-top:10px;
-}
-
-.ticker span {
-  display:flex;
-  flex-direction:column;
-  min-width:62px;
-  font-size:.75rem;
-  line-height:1.5;
-  opacity:.9;
-}
-
-.ticker b {
-  font-size:1.875rem;
-  font-weight:500;
-  line-height:1.3;
-  letter-spacing:-.02em;
-  font-variant-numeric:tabular-nums;
-}
-
-.date .button {
-  margin-top:30px;
-}
-
 .date-note {
-  margin-top:20px;
+  margin-top:22px;
   font-size:.8125rem;
   opacity:.8;
 }
@@ -811,23 +749,6 @@ dialog {
   font-size:.875rem;
 }
 
-.dialog-choices {
-  display:grid;
-  gap:10px;
-}
-
-.copy-dialog .dialog-note {
-  margin:16px 0 6px;
-  font-size:.8125rem;
-  color:var(--muted);
-}
-
-.dialog-close {
-  width:100%;
-  border-color:#c7d2dc;
-  background:transparent;
-}
-
 .copy-dialog input {
   width:100%;
   margin-bottom:18px;
@@ -944,12 +865,12 @@ dialog {
 }
 
 /* The heart balloon inflates, then bobs gently; it is also a button. */
-.motion .date:not(.in) .wedding-day {
+.motion .date:not(.in) .heart-balloon {
   transform:scale(0);
 }
 
-.motion .date.in .wedding-day {
-  animation:heart-pop .7s cubic-bezier(.3,1.6,.5,1) .7s both,heart-bob 2.6s ease-in-out 1.5s infinite;
+.motion .date.in .heart-balloon {
+  animation:heart-pop .7s cubic-bezier(.3,1.6,.5,1) .1s both,heart-bob 2.6s ease-in-out .9s infinite;
 }
 
 /* Entrances play only on the way down. Anything first reached while scrolling back up is .settled:
@@ -958,7 +879,7 @@ dialog {
   transition:none;
 }
 
-.motion .date.settled .wedding-day {
+.motion .date.settled .heart-balloon {
   animation:heart-bob 2.6s ease-in-out infinite;
 }
 

@@ -1,3 +1,1 @@
 * text=auto eol=lf
-# Calendar files must keep their CRLF line endings.
-*.ics -text

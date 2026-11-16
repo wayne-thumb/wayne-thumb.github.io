@@ -1,7 +1,6 @@
 import { announcement as data } from './invitation.js';
 import { playWelcomeConfetti, studioConfetti, skyConfetti } from './confetti.js';
 import { motion, onEnter, releaseBalloons, addEffect, drift } from './motion.js';
-import { googleCalendarUrl } from './calendar.js';
 
 // Always open at the top, where the greeting is, even on a reload or when coming back to the tab's
 // history. (index.html also turns off the browser's own scroll restoration as early as it can.)
@@ -20,14 +19,13 @@ const make = (tag, className, value) => {
   if (value !== undefined) node.textContent = value;
   return node;
 };
-const [year, month, day] = data.date.split('-').map(Number);
-const date = new Date(`${data.date}T00:00:00+09:00`);
+// The day is only ever a small line, without its weekday: there is nothing to come to on it.
 const dateLabel = new Intl.DateTimeFormat('ko-KR', {
-  timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
-}).format(date);
+  timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric'
+}).format(new Date(`${data.date}T00:00:00+09:00`));
 const couple = `${data.groom.name} · ${data.bride.name}`;
 
-document.title = `${couple}, 부부가 됩니다`;
+document.title = `${couple}, 부부가 되었습니다`;
 text('[data-date]', dateLabel);
 text('[data-signature]', `${couple} 드림`);
 text('#english-names', `${data.groom.english} & ${data.bride.english}`);
@@ -201,76 +199,13 @@ viewer.addEventListener('touchend', (event) => {
   if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) showPhoto(current + (dx < 0 ? 1 : -1));
 }, { passive: true });
 
-// Calendar of the month. The day itself is a heart balloon; tapping it lets more balloons go.
-const firstWeekday = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
-const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
-let row;
-for (let cell = 0; cell < Math.ceil((firstWeekday + daysInMonth) / 7) * 7; cell++) {
-  if (cell % 7 === 0) { row = make('tr'); $('#calendar-days').append(row); }
-  const td = make('td');
-  const value = cell - firstWeekday + 1;
-  if (value === day) {
-    const heart = make(motion ? 'button' : 'span', 'wedding-day', value);
-    heart.setAttribute('aria-label', `${month}월 ${day}일, 부부가 되는 날`);
-    if (motion) {
-      heart.type = 'button';
-      heart.addEventListener('click', () => releaseBalloons(7));
-    }
-    td.append(heart);
-  } else if (value > 0 && value <= daysInMonth) {
-    td.append(make('span', '', value));
-  }
-  row.append(td);
-}
-
-// Counts down to midnight in Korea, wherever the visitor is, then counts the days since.
-const units = Object.fromEntries([...document.querySelectorAll('#ticker [data-unit]')].map((node) => [node.dataset.unit, node]));
-const pad = (value) => String(value).padStart(2, '0');
-function updateCountdown() {
-  const remaining = date.getTime() - Date.now();
-  const label = $('#countdown');
-  if (remaining > 0) {
-    const seconds = Math.floor(remaining / 1000);
-    const days = Math.floor(seconds / 86400);
-    units.days.textContent = days;
-    units.hours.textContent = pad(Math.floor(seconds / 3600) % 24);
-    units.minutes.textContent = pad(Math.floor(seconds / 60) % 60);
-    units.seconds.textContent = pad(seconds % 60);
-    const spoken = `부부가 되는 날까지 ${days + 1}일`;
-    if (label.dataset.spoken !== spoken) {
-      label.dataset.spoken = spoken;
-      label.replaceChildren(document.createTextNode('부부가 되는 날까지'), make('span', 'sr-only', ` ${days + 1}일`));
-    }
-    return;
-  }
-  $('#ticker').hidden = true;
-  const since = Math.floor(-remaining / 86400000);
-  label.textContent = since === 0 ? '오늘, 저희 부부가 되었습니다.' : `부부로 함께한 지 ${since + 1}일째`;
-}
-updateCountdown();
-setInterval(updateCountdown, 1000);
-
-// Adding the day to a calendar without ever saving a file.
-// Anywhere but an iPhone, the button is simply a link to Google Calendar with the event filled in;
-// an .ics there would only be downloaded, so it is not offered at all.
-// On an iPhone the button opens a chooser: its own calendar (Safari answers the published .ics, opened as a
-// link, with an "add to calendar" sheet) or Google Calendar.
-const iPhone = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const save = $('#save-calendar');
-$('#calendar-google').href = googleCalendarUrl(data);
-if (iPhone) {
-  $('#calendar-apple').href = new URL('./assets/anniversary.ics', import.meta.url).href;
-  save.addEventListener('click', () => $('#calendar-dialog').showModal());
-  $('#close-calendar').addEventListener('click', () => $('#calendar-dialog').close());
-  for (const link of document.querySelectorAll('#calendar-choices a')) link.addEventListener('click', () => $('#calendar-dialog').close());
-} else {
-  const link = make('a', save.className, save.textContent);
-  link.id = save.id;
-  link.setAttribute('style', save.getAttribute('style') ?? '');
-  link.href = googleCalendarUrl(data);
-  link.target = '_blank';
-  link.rel = 'noopener';
-  save.replaceWith(link);
+// The day is marked with a heart balloon like the ones the two are holding; tapping it lets more go.
+if (motion) {
+  const heart = make('button', 'heart-balloon');
+  heart.type = 'button';
+  heart.setAttribute('aria-label', '하트 풍선 날리기');
+  heart.addEventListener('click', () => releaseBalloons(7));
+  $('#date-heart').replaceWith(heart);
 }
 
 let toastTimer;

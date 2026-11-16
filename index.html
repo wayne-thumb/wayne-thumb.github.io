@@ -4,18 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#d6d6d4">
-  <meta name="description" content="2027년 2월 14일, 나동규와 이엄지가 부부가 됩니다. 소중한 분들께 저희의 결혼 소식을 전합니다.">
+  <meta name="description" content="소중한 분들께 저희의 결혼 소식을 전합니다. 별도의 결혼식은 진행하지 않습니다.">
   <meta name="robots" content="noindex">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="나동규 · 이엄지, 부부가 됩니다">
-  <meta property="og:description" content="2027년 2월 14일. 소중한 분들께 저희의 결혼 소식을 전합니다. 별도의 결혼식은 진행하지 않습니다.">
+  <meta property="og:title" content="나동규 · 이엄지, 부부가 되었습니다">
+  <meta property="og:description" content="소중한 분들께 저희의 결혼 소식을 전합니다. 별도의 결혼식은 진행하지 않습니다.">
   <meta property="og:url" content="https://wayne-thumb.github.io/">
   <meta property="og:image" content="https://wayne-thumb.github.io/assets/og.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:locale" content="ko_KR">
   <meta name="twitter:card" content="summary_large_image">
-  <title>나동규 · 이엄지, 부부가 됩니다</title>
+  <title>나동규 · 이엄지, 부부가 되었습니다</title>
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,14 +47,14 @@
           alt="색종이가 흩날리는 사진관 바닥에 나란히 앉아 웃고 있는 두 사람">
         <div class="cover-copy">
           <p class="cover-names"><span data-groom>나동규</span><span data-bride>이엄지</span></p>
-          <h1 id="headline"><span>저희,</span> <span>부부가 됩니다</span></h1>
-          <p class="cover-date" data-date>2027년 2월 14일 일요일</p>
+          <h1 id="headline"><span>저희, 부부가</span> <span>되었습니다</span></h1>
+          <p class="cover-date" data-date>2027년 2월 14일</p>
         </div>
       </header>
 
       <section class="letter reveal" id="letter" aria-labelledby="letter-title">
         <h2 class="rise" id="letter-title">소중한 분들께</h2>
-        <p class="letter-message" id="letter-message">저희 두 사람, 부부가 됩니다.
+        <p class="letter-message" id="letter-message">저희 두 사람, 부부가 되었습니다.
 
 별도의 결혼식은 올리지 않고
 소중한 분들께 이 글로 소식을 전합니다.</p>
@@ -63,21 +63,10 @@
     </div>
 
     <section class="date reveal" aria-labelledby="date-title">
-      <h2 class="rise" id="date-title" data-date>2027년 2월 14일 일요일</h2>
-      <p class="date-line rise" style="--i:1">둘이 함께 써 내려갈 이야기의 첫날</p>
-      <table class="calendar rise" style="--i:2" aria-label="두 사람이 부부가 되는 날이 있는 달력">
-        <thead><tr><th scope="col">일</th><th scope="col">월</th><th scope="col">화</th><th scope="col">수</th><th scope="col">목</th><th scope="col">금</th><th scope="col">토</th></tr></thead>
-        <tbody id="calendar-days"></tbody>
-      </table>
-      <p class="countdown rise" style="--i:3" id="countdown"></p>
-      <div class="ticker rise" style="--i:4" id="ticker" aria-hidden="true">
-        <span><b data-unit="days">0</b>일</span>
-        <span><b data-unit="hours">00</b>시간</span>
-        <span><b data-unit="minutes">00</b>분</span>
-        <span><b data-unit="seconds">00</b>초</span>
-      </div>
-      <button class="button button-light rise" style="--i:5" id="save-calendar" type="button">캘린더에 추가</button>
-      <p class="date-note rise" style="--i:5">별도의 결혼식은 진행하지 않습니다.</p>
+      <span class="heart-balloon" id="date-heart" aria-hidden="true"></span>
+      <h2 class="rise" id="date-title" style="--i:2">둘이 함께 써 내려갈 이야기의 첫날</h2>
+      <p class="date-day rise" style="--i:3" data-date>2027년 2월 14일</p>
+      <p class="date-note rise" style="--i:4">별도의 결혼식은 진행하지 않습니다.</p>
     </section>
 
     <section class="intro reveal" aria-labelledby="intro-title">
@@ -135,21 +124,12 @@
     <button id="viewer-prev" class="viewer-nav" type="button" aria-label="이전 사진"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button>
     <button id="viewer-next" class="viewer-nav" type="button" aria-label="다음 사진"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
   </dialog>
-  <dialog id="calendar-dialog" class="copy-dialog" aria-labelledby="calendar-title">
-    <h2 id="calendar-title">캘린더에 추가</h2><p>쓰시는 캘린더를 골라 주세요. 파일을 저장하지 않고 바로 추가 화면이 열립니다.</p>
-    <div class="dialog-choices" id="calendar-choices">
-      <a class="button button-blue" id="calendar-apple">아이폰 캘린더</a>
-      <a class="button button-blue" id="calendar-google" target="_blank" rel="noopener">구글 캘린더</a>
-    </div>
-    <p class="dialog-note">카카오톡 안에서 열리지 않으면 Safari에서 이 페이지를 열어 주세요.</p>
-    <button class="button dialog-close" id="close-calendar" type="button">닫기</button>
-  </dialog>
   <dialog id="copy-dialog" class="copy-dialog" aria-labelledby="copy-title">
     <h2 id="copy-title">직접 복사해 주세요</h2><p>아래 내용을 길게 누르거나 선택해 복사할 수 있습니다.</p>
     <input id="copy-value" readonly aria-label="복사할 내용">
     <button class="button button-blue" id="close-copy" type="button">닫기</button>
   </dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <noscript><p class="noscript">달력과 사진을 보려면 JavaScript를 켜 주세요. 나동규와 이엄지는 2027년 2월 14일 부부가 됩니다. 별도의 결혼식은 진행하지 않습니다.</p></noscript>
+  <noscript><p class="noscript">사진을 보려면 JavaScript를 켜 주세요. 나동규와 이엄지는 부부가 되었습니다. 별도의 결혼식은 진행하지 않습니다.</p></noscript>
 </body>
 </html>
