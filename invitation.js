@@ -51,8 +51,11 @@ export const announcement = {
   // 나머지는 옆으로 흘러가는 줄로 보입니다.
   // lead.effect 는 그 사진 위에서 움직이는 작은 효과입니다: 'balloons'(하트 풍선), 'bubbles'(비눗방울),
   // 'leaves'(은행잎), 'sparks'(불꽃, at 은 사진 안에서 불꽃이 있는 위치 [가로, 세로] 0~1). 빼면 효과가 없습니다.
+  // title 은 묶음 위에 붓글씨로 써지는 제목(지금은 하루의 때), place 는 그 아래 작은 글입니다. 빼면 보이지 않습니다.
+  // night: true 인 묶음은 밤하늘 색 바탕 위에 놓입니다.
   gallery: [
     {
+      title: '한낮', place: '언덕 위에서',
       lead: { id: 'noon-jump', alt: '하트 풍선을 들고 뛰어오른 신랑과 그 손을 잡은 신부', effect: 'balloons' },
       photos: [
         { id: 'noon-lift', alt: '면사포를 쓴 신부를 번쩍 안아 올린 신랑' },
@@ -64,6 +67,7 @@ export const announcement = {
       ]
     },
     {
+      title: '오후', place: '풀밭에서',
       lead: { id: 'field-bubbles-wide', alt: '비눗방울을 불다 마주 보고 웃는 두 사람', wide: true, effect: 'bubbles' },
       photos: [
         { id: 'field-kiss', alt: '웃는 신부의 머리에 입 맞추는 신랑' },
@@ -75,6 +79,7 @@ export const announcement = {
       ]
     },
     {
+      title: '해 질 녘', place: '은행나무 길에서',
       lead: { id: 'alley-ginkgo', alt: '은행나무 길 횡단보도를 손잡고 건너는 두 사람', effect: 'leaves' },
       photos: [
         { id: 'alley-brick', alt: '붉은 벽돌 건물에 나란히 기대선 두 사람' },
@@ -86,6 +91,7 @@ export const announcement = {
       ]
     },
     {
+      title: '밤', place: '다리 위에서', night: true,
       lead: { id: 'night-sparkler', alt: '밤의 다리 위에서 불꽃을 함께 들고 있는 두 사람', effect: 'sparks', at: [0.33, 0.67] },
       photos: [
         { id: 'night-dusk', alt: '분홍빛 노을과 강 건너 빌딩을 뒤로하고 마주 선 두 사람' },

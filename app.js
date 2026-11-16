@@ -139,16 +139,27 @@ if (data.intro.lead) {
 }
 $('#intro-strip').replaceWith(makeStrip(data.intro.photos, '사진관에서 찍은 사진', 20));
 
-// Each group: one large photo with its own small effect, two prints tossed below it, then a drifting row.
+// Each group: its title, one large photo with its own small effect, two prints tossed below it, then a drifting row.
 data.gallery.forEach((group, index) => {
-  const block = make('div', 'gallery-group');
+  const block = make('div', group.night ? 'gallery-group night' : 'gallery-group');
+  if (group.title) {
+    const heading = make('h3', 'chapter reveal');
+    heading.append(make('span', 'chapter-title', group.title));
+    if (group.place) {
+      const place = make('span', 'chapter-place rise', group.place);
+      place.style.setProperty('--i', 5);
+      heading.append(document.createTextNode(' '), place);
+    }
+    block.append(heading);
+  }
   const lead = photoButton(group.lead, group.lead.wide ? 'lead lead-wide' : 'lead', fullWidth);
   addEffect(lead, group.lead.effect, group.lead.at);
   onEnter(lead, 0.9);
   const prints = make('div', 'prints');
   prints.append(...group.photos.slice(0, 2).map((photo) => photoButton(photo, 'print', halfWidth)));
   onEnter(prints, 0.82);
-  block.append(lead, prints, makeStrip(group.photos.slice(2), `사진 묶음 ${index + 1}`, index % 2 ? 24 : -24));
+  const label = group.title ? `사진 묶음 ${index + 1}: ${group.title}` : `사진 묶음 ${index + 1}`;
+  block.append(lead, prints, makeStrip(group.photos.slice(2), label, index % 2 ? 24 : -24));
   $('#gallery').append(block);
 });
 $('#closing-photo').replaceWith(photoImage(data.closing, fullWidth));
@@ -304,7 +315,15 @@ const gift = data.gift ?? {};
 const folder = window.location.pathname.replace(/index\.html$/, '').replace(/\/+$/, '');
 const giftLink = Boolean(gift.path) && (folder.endsWith(`/${gift.path}`)
   || new URLSearchParams(window.location.search).get('mode') === gift.path);
-if (gift.accounts?.length && giftLink) {
+const showGift = Boolean(gift.accounts?.length) && giftLink;
+// A night group at the very end thins into the morning sky of the last photo. On the link with the accounts
+// it ends squarely instead, and the accounts start on their own sheet of paper below it.
+const lastGroup = $('#gallery').lastElementChild;
+if (lastGroup?.matches('.night')) {
+  if (showGift) $('#gift').classList.add('after-night');
+  else lastGroup.classList.add('dawn');
+}
+if (showGift) {
   text('#gift-title', gift.title);
   text('#gift-note', gift.note);
   for (const account of gift.accounts) {

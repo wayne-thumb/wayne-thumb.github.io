@@ -1,8 +1,9 @@
-/* Colours are sampled from the photographs: the noon sky, the hill, the dress, the heart balloon. */
+/* Colours are sampled from the photographs: the noon sky, the night sky, the hill, the dress, the heart balloon. */
 :root {
   --sky-top:#034c86;
   --sky:#1870af;
   --sky-low:#4d92c2;
+  --night:#04101f;
   --grass:#4d5a37;
   --paper:#fbfcfd;
   --ink:#14212e;
@@ -482,13 +483,14 @@ h2 {
   color:var(--muted);
 }
 
-/* Gallery: a large photo, two prints tossed below it, then a row that drifts by. */
+/* Gallery: a large photo, two prints tossed below it, then a row that drifts by.
+   The space at the end belongs to the last group, so that a group with its own ground can colour it. */
 .gallery {
-  padding:88px 0 92px;
+  padding-top:88px;
 }
 
 .gallery h2 {
-  padding:0 var(--gutter) 32px;
+  padding:0 var(--gutter) 40px;
 }
 
 .gallery h2 span {
@@ -496,7 +498,74 @@ h2 {
 }
 
 .gallery-group + .gallery-group {
-  margin-top:64px;
+  margin-top:76px;
+}
+
+.gallery-group:last-child {
+  padding-bottom:92px;
+}
+
+/* Each group opens with its time of day, in the same brush as the greeting. */
+.chapter {
+  padding:0 var(--gutter) 24px;
+}
+
+.chapter-title {
+  display:block;
+  width:max-content;
+  max-width:100%;
+  margin:0 auto;
+  padding:0 .12em;
+  color:var(--sky-top);
+  font-family:var(--brush);
+  font-size:2.75rem;
+  font-weight:400;
+  line-height:1.05;
+}
+
+.chapter-place {
+  display:block;
+  margin-top:8px;
+  color:var(--muted);
+  font-size:.75rem;
+  font-weight:400;
+  line-height:1.6;
+  letter-spacing:.24em;
+}
+
+/* The night photos lie on the night itself (the sky above the sparkler): the large photo melts into it,
+   and the white-edged prints stand out the way real ones do on a dark table. */
+.gallery-group.night {
+  padding:76px 0 92px;
+  background:var(--night);
+  color:#fff;
+}
+
+/* The title takes the sparkler's light. */
+.night .chapter-title {
+  color:#ffdfa8;
+}
+
+.night .chapter-place {
+  color:#a9bccf;
+}
+
+.night .lead,.night .strip-photo {
+  background:#16263a;
+}
+
+.night .print {
+  box-shadow:0 12px 30px #000b;
+}
+
+.night .strip {
+  scrollbar-color:#51657a transparent;
+}
+
+/* With nothing between the night and the last photo, it thins into that photo's morning sky. */
+.gallery-group.night.dawn {
+  padding-bottom:150px;
+  background:linear-gradient(var(--night) calc(100% - 190px),var(--sky-top));
 }
 
 .prints {
@@ -540,6 +609,11 @@ h2 {
 /* Accounts, shown only on the link that asks for them. */
 .gift {
   padding:0 var(--gutter) 92px;
+}
+
+/* Below a night group there is no paper left over above the heading, so it brings its own. */
+.gift.after-night {
+  padding-top:84px;
 }
 
 .gift-note {
@@ -859,6 +933,16 @@ dialog {
   transform:translateY(18px);
 }
 
+/* A group's title is written in the way the greeting was, when it is scrolled to. */
+.motion .chapter-title {
+  clip-path:inset(-30% -10% -30% -10%);
+  transition:clip-path .9s cubic-bezier(.55,.1,.35,1) .1s;
+}
+
+.motion .chapter:not(.in) .chapter-title {
+  clip-path:inset(-30% 110% -30% -10%);
+}
+
 /* The heart balloon inflates, then bobs gently; it is also a button. */
 .motion .date:not(.in) .wedding-day {
   transform:scale(0);
@@ -870,7 +954,7 @@ dialog {
 
 /* Entrances play only on the way down. Anything first reached while scrolling back up is .settled:
    already in place, with nothing to watch arrive. */
-.motion .settled .rise,.motion .lead.settled img,.motion .prints.settled .print {
+.motion .settled .rise,.motion .settled .chapter-title,.motion .lead.settled img,.motion .prints.settled .print {
   transition:none;
 }
 
