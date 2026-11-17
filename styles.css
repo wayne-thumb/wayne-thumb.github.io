@@ -26,10 +26,6 @@ html {
   scroll-behavior:smooth;
 }
 
-html.viewer-open {
-  overflow:hidden;
-}
-
 body {
   margin:0;
   background:#e3e9ee;
@@ -51,8 +47,16 @@ ul {
   list-style:none;
 }
 
+/* Photos are for looking at here, not for taking away. A press or a click passes through to whatever
+   holds the photo, so the browser has no image to offer to save, open, copy, or drag out.
+   (Nothing can stop a screenshot.) */
 img {
   display:block;
+  pointer-events:none;
+  -webkit-touch-callout:none;
+  -webkit-user-drag:none;
+  -webkit-user-select:none;
+  user-select:none;
 }
 
 button,input {
@@ -85,7 +89,7 @@ a {
   box-shadow:0 0 0 5px var(--ink);
 }
 
-.lead:focus-visible,.strip-photo:focus-visible,.print:focus-visible,.portrait-photo:focus-visible {
+.portrait-photo:focus-visible {
   outline-offset:-5px;
   box-shadow:inset 0 0 0 3px var(--ink);
 }
@@ -660,73 +664,10 @@ h2 {
   opacity:.78;
 }
 
-/* Full-screen photo viewer */
+/* The dialog that offers a link or an account number to copy by hand. */
 dialog {
   border:0;
   padding:0;
-}
-
-.viewer {
-  width:100vw;
-  height:100dvh;
-  max-width:none;
-  max-height:none;
-  margin:0;
-  background:#050d18;
-  color:#fff;
-  overflow:hidden;
-}
-
-.viewer[open] {
-  display:grid;
-  grid-template-rows:auto minmax(0,1fr);
-}
-
-.viewer-bar {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:calc(env(safe-area-inset-top) + 8px) 8px 8px 20px;
-  font-size:.875rem;
-}
-
-.viewer-bar button,.viewer-nav {
-  display:grid;
-  place-items:center;
-  width:48px;
-  height:48px;
-  border:0;
-  border-radius:50%;
-  background:transparent;
-}
-
-.viewer svg {
-  width:24px;
-  height:24px;
-  stroke:#fff;
-  stroke-width:1.6;
-}
-
-#viewer-image {
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  padding-bottom:env(safe-area-inset-bottom);
-}
-
-.viewer-nav {
-  position:absolute;
-  top:50%;
-  margin-top:-24px;
-  background:#050d1880;
-}
-
-#viewer-prev {
-  left:6px;
-}
-
-#viewer-next {
-  right:6px;
 }
 
 .copy-dialog {

@@ -211,7 +211,7 @@ export function drift(strip, speed) {
   strip.addEventListener('wheel', (event) => {
     if (event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) row.restUntil = performance.now() + RESUME_AFTER;
   }, { passive: true });
-  // Someone tabbing through the photos should not have them slide out from under the focus ring.
+  // Someone who has tabbed to the row is moving it with the arrow keys; it should not slide away under them.
   strip.addEventListener('focusin', (event) => { row.focused = event.target.matches(':focus-visible'); });
   strip.addEventListener('focusout', () => { row.focused = false; });
   strip.classList.add('drifting');

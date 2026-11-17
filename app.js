@@ -56,21 +56,22 @@ function photoImage(photo, sizes) {
   img.src = photoUrl(photo.id, 1280);
   return img;
 }
-const album = [];
-function photoButton(photo, className, sizes) {
-  const index = album.push(photo) - 1;
-  const button = make('button', className);
+// A photo in its frame. Photos are looked at where they are on the page and are not handed out:
+// pressing one does nothing, and styles.css keeps the browser from offering to save or drag it.
+function photoFrame(photo, className, sizes) {
+  const frame = make('div', className);
   const img = photoImage(photo, sizes);
-  button.type = 'button';
   img.addEventListener('error', () => {
-    button.disabled = true;
-    button.classList.add('photo-missing');
-    button.replaceChildren(make('span', '', '사진을 불러오지 못했습니다'));
+    frame.classList.add('photo-missing');
+    frame.replaceChildren(make('span', '', '사진을 불러오지 못했습니다'));
   });
-  button.append(img);
-  button.addEventListener('click', () => openViewer(index));
-  return button;
+  frame.append(img);
+  return frame;
 }
+// The same goes for the menu a long press or a right click would bring up over a photo.
+document.addEventListener('contextmenu', (event) => {
+  if (event.target.closest?.('.cover,.lead,.strip-photo,.print,.portrait-photo,.closing')) event.preventDefault();
+});
 const fullWidth = '(min-width: 480px) 480px, 100vw';
 const halfWidth = '(min-width: 480px) 240px, 50vw';
 const stripWidth = '(min-width: 480px) 260px, 54vw';
@@ -78,7 +79,9 @@ function makeStrip(photos, label, speed) {
   const strip = make('div', 'strip');
   strip.setAttribute('role', 'group');
   strip.setAttribute('aria-label', label);
-  strip.append(...photos.map((photo) => photoButton(photo, 'strip-photo', stripWidth)));
+  // Nothing inside the row takes focus, so the row itself does, and the arrow keys can move it.
+  strip.tabIndex = 0;
+  strip.append(...photos.map((photo) => photoFrame(photo, 'strip-photo', stripWidth)));
   drift(strip, speed);
   return strip;
 }
@@ -96,7 +99,7 @@ for (const role of ['bride', 'groom']) {
 // and once by themselves shortly after they come into view. The two always change together,
 // because one person alone in sunglasses just looks odd.
 function portrait(person) {
-  if (!person.shades) return { button: photoButton(person.portrait, 'portrait-photo', halfWidth), wear() {} };
+  if (!person.shades) return { button: photoFrame(person.portrait, 'portrait-photo', halfWidth), wear() {} };
   const button = make('button', 'portrait-photo');
   const shades = photoImage(person.shades, halfWidth);
   shades.className = 'shades';
@@ -131,7 +134,7 @@ for (const made of portraits) made.button.addEventListener('click', () => wearTo
 onEnter($('.portraits'), 0.6, () => setTimeout(() => wearTogether(true), 1300));
 
 if (data.intro.lead) {
-  const lead = photoButton(data.intro.lead, 'lead', fullWidth);
+  const lead = photoFrame(data.intro.lead, 'lead', fullWidth);
   onEnter(lead, 0.9);
   $('#intro-lead').replaceWith(lead);
 }
@@ -150,54 +153,17 @@ data.gallery.forEach((group, index) => {
     }
     block.append(heading);
   }
-  const lead = photoButton(group.lead, group.lead.wide ? 'lead lead-wide' : 'lead', fullWidth);
+  const lead = photoFrame(group.lead, group.lead.wide ? 'lead lead-wide' : 'lead', fullWidth);
   addEffect(lead, group.lead.effect, group.lead.at);
   onEnter(lead, 0.9);
   const prints = make('div', 'prints');
-  prints.append(...group.photos.slice(0, 2).map((photo) => photoButton(photo, 'print', halfWidth)));
+  prints.append(...group.photos.slice(0, 2).map((photo) => photoFrame(photo, 'print', halfWidth)));
   onEnter(prints, 0.82);
   const label = group.title ? `사진 묶음 ${index + 1}: ${group.title}` : `사진 묶음 ${index + 1}`;
   block.append(lead, prints, makeStrip(group.photos.slice(2), label, index % 2 ? 24 : -24));
   $('#gallery').append(block);
 });
 $('#closing-photo').replaceWith(photoImage(data.closing, fullWidth));
-
-// Full-screen viewer: arrows, swipe, and keyboard move through every photo in page order.
-const viewer = $('#viewer');
-const viewerImage = $('#viewer-image');
-let current = 0;
-function showPhoto(index) {
-  current = (index + album.length) % album.length;
-  viewerImage.src = photoUrl(album[current].id, 1280);
-  viewerImage.alt = album[current].alt;
-  text('#viewer-count', `${current + 1} / ${album.length}`);
-}
-function openViewer(index) {
-  showPhoto(index);
-  viewer.showModal();
-  document.documentElement.classList.add('viewer-open');
-}
-viewer.addEventListener('close', () => {
-  document.documentElement.classList.remove('viewer-open');
-  viewerImage.removeAttribute('src');
-});
-viewer.addEventListener('click', (event) => { if (event.target === viewer) viewer.close(); });
-viewer.addEventListener('keydown', (event) => {
-  if (event.key === 'ArrowLeft') showPhoto(current - 1);
-  if (event.key === 'ArrowRight') showPhoto(current + 1);
-});
-$('#viewer-close').addEventListener('click', () => viewer.close());
-$('#viewer-prev').addEventListener('click', () => showPhoto(current - 1));
-$('#viewer-next').addEventListener('click', () => showPhoto(current + 1));
-let touchStart;
-viewer.addEventListener('touchstart', (event) => { touchStart = event.changedTouches[0]; }, { passive: true });
-viewer.addEventListener('touchend', (event) => {
-  if (!touchStart) return;
-  const dx = event.changedTouches[0].clientX - touchStart.clientX;
-  const dy = event.changedTouches[0].clientY - touchStart.clientY;
-  touchStart = undefined;
-  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) showPhoto(current + (dx < 0 ? 1 : -1));
-}, { passive: true });
 
 // The day is marked with a heart balloon like the ones the two are holding; tapping it lets more go.
 if (motion) {
