@@ -117,10 +117,9 @@ export const announcement = {
     path: 'p',
     title: '마음 전하실 곳',
     note: '멀리서 마음을 전하고 싶으신 분들을 위해\n조심스럽게 적어 둡니다.',
-    // 아래는 자리만 잡아 둔 값입니다. 실제 은행과 계좌번호로 바꿔 주세요.
     accounts: [
-      { label: '신랑 나동규', bank: '○○은행', number: '000-00-0000000', holder: '나동규' },
-      { label: '신부 이엄지', bank: '○○은행', number: '000-00-0000000', holder: '이엄지' }
+      { label: '신랑 나동규', bank: '기업은행', number: '012-08784801013', holder: '나동규' },
+      { label: '신부 이엄지', bank: '신한은행', number: '110-217-200375', holder: '제은아' }
     ]
   }
 };
