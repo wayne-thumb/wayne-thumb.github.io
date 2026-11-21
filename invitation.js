@@ -4,7 +4,7 @@
 export const announcement = {
   // 배포 주소. 메신저 공유 미리보기 사진(og:image)의 절대 경로에 쓰입니다.
   siteUrl: 'https://wayne-thumb.github.io/',
-  // 첫 화면(색종이 사진)과 마지막 인사 사진에서 터지는 동그란 색종이. false 로 끌 수 있습니다.
+  // 첫 화면(색종이 사진)이 열리자마자 터지는 동그란 색종이. false 로 끌 수 있습니다.
   welcomeConfetti: true,
   // family 는 선택 사항입니다. 예: '나○○ · 김○○의 아들'
   // shades 는 소개 사진을 누르면(처음 보일 때는 저절로) 바뀌는 선글라스 사진입니다. 빼면 바뀌지 않습니다.
@@ -18,8 +18,6 @@ export const announcement = {
     portrait: { id: 'portrait-bride', alt: '하얀 드레스를 입고 환하게 웃는 신부 이엄지' },
     shades: { id: 'shades-bride', alt: '검은 선글라스를 쓰고 활짝 웃는 신부 이엄지' }
   },
-  // 결혼식을 진행하지 않으므로 시간 없는 날짜를 사용합니다. 첫 화면과 파란 띠에 작은 글씨로만 보입니다.
-  date: '2027-02-14',
   // 첫 화면 하늘에 붓글씨로 한 줄씩 써지는 글입니다.
   headline: ['저희, 부부가', '되었습니다'],
   message: [
@@ -52,10 +50,12 @@ export const announcement = {
   // lead.effect 는 그 사진 위에서 움직이는 작은 효과입니다: 'balloons'(하트 풍선), 'bubbles'(비눗방울),
   // 'leaves'(은행잎), 'sparks'(불꽃, at 은 사진 안에서 불꽃이 있는 위치 [가로, 세로] 0~1). 빼면 효과가 없습니다.
   // title 은 묶음 위에 붓글씨로 써지는 제목(지금은 하루의 때), place 는 그 아래 작은 글입니다. 빼면 보이지 않습니다.
-  // night: true 인 묶음은 밤하늘 색 바탕 위에 놓입니다.
+  // night: true 인 묶음은 글씨가 밝은색이 됩니다(어두운 바탕용).
+  // tone 은 그 묶음 뒤 바탕색입니다. 사진에서 가져온 색을 위에서 아래로 차례대로 적으면(하나만 적어도 됨)
+  // 그 색들을 지나 다음 묶음의 첫 색으로 이어져서, 묶음 전체가 한낮에서 밤까지 하나의 그라데이션이 됩니다.
   gallery: [
     {
-      title: '한낮', place: '언덕 위에서',
+      title: '한낮', place: '언덕 위에서', tone: ['#e6f1fa', '#d3e6f6'],
       lead: { id: 'noon-jump', alt: '하트 풍선을 들고 뛰어오른 신랑과 그 손을 잡은 신부', effect: 'balloons' },
       photos: [
         { id: 'noon-lift', alt: '면사포를 쓴 신부를 번쩍 안아 올린 신랑' },
@@ -67,7 +67,7 @@ export const announcement = {
       ]
     },
     {
-      title: '오후', place: '풀밭에서',
+      title: '오후', place: '풀밭에서', tone: ['#e3edd5', '#eef0d0'],
       lead: { id: 'field-bubbles-wide', alt: '비눗방울을 불다 마주 보고 웃는 두 사람', wide: true, effect: 'bubbles' },
       photos: [
         { id: 'field-kiss', alt: '웃는 신부의 머리에 입 맞추는 신랑' },
@@ -79,7 +79,7 @@ export const announcement = {
       ]
     },
     {
-      title: '해 질 녘', place: '은행나무 길에서',
+      title: '해 질 녘', place: '은행나무 길에서', tone: ['#f7e8c9', '#f3cfa2', '#dc9d7c', '#7a5068'],
       lead: { id: 'alley-ginkgo', alt: '은행나무 길 횡단보도를 손잡고 건너는 두 사람', effect: 'leaves' },
       photos: [
         { id: 'alley-brick', alt: '붉은 벽돌 건물에 나란히 기대선 두 사람' },
@@ -91,12 +91,12 @@ export const announcement = {
       ]
     },
     {
-      title: '밤', place: '다리 위에서', night: true,
+      title: '밤', place: '다리 위에서', night: true, tone: '#04101f',
       lead: { id: 'night-sparkler', alt: '밤의 다리 위에서 불꽃을 함께 들고 있는 두 사람', effect: 'sparks', at: [0.33, 0.67] },
       photos: [
         { id: 'night-dusk', alt: '분홍빛 노을과 강 건너 빌딩을 뒤로하고 마주 선 두 사람' },
-        { id: 'night-sparklers', alt: '양손에 불꽃을 들고 웃는 두 사람' },
         { id: 'night-skyline', alt: '도시의 야경을 뒤로하고 난간에 걸터앉은 두 사람' },
+        { id: 'night-sparklers', alt: '양손에 불꽃을 들고 웃는 두 사람' },
         { id: 'night-bridge', alt: '다리 위에서 손을 잡고 마주 보는 두 사람' },
         { id: 'night-stairs', alt: '계단참에서 서로를 끌어안은 두 사람' },
         { id: 'night-dance', alt: '가로등 아래 밤길에서 춤추는 두 사람' }
@@ -105,11 +105,11 @@ export const announcement = {
   ],
   closing: {
     id: 'closing', alt: '파란 하늘 아래 잔디 언덕에서 나란히 허리 숙여 인사하는 두 사람',
-    title: '고맙습니다',
     line: '서로의 가장 가까운 편이 되어\n다정하게 잘 살겠습니다.'
   },
   // 마음 전하실 곳(계좌번호). 평소 주소에서는 보이지 않고,
-  // 주소 뒤에 /p 를 붙인 링크로 열었을 때만 보입니다(path 값을 바꾸면 그 이름의 주소가 됩니다).
+  // 주소 뒤에 /p 를 붙인 링크로 열었을 때만 나타납니다(path 값을 바꾸면 그 이름의 주소가 됩니다).
+  // 그 링크에서도 label(누구 계좌인지)만 보이고, 번호는 이름 옆 "계좌 보기"를 누른 사람 것만 펼쳐집니다.
   //   소식만 전하는 링크: <siteUrl>
   //   계좌가 보이는 링크: <siteUrl>p
   // 주의: 이 저장소는 공개이므로 여기에 적은 계좌번호는 누구나 볼 수 있습니다.

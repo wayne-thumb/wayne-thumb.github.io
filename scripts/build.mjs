@@ -2,10 +2,6 @@ import { access, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { announcement } from '../invitation.js';
 
-const day = new Date(`${announcement.date}T00:00:00Z`);
-if (!/^\d{4}-\d{2}-\d{2}$/.test(announcement.date) || !Number.isFinite(day.getTime()) || day.toISOString().slice(0, 10) !== announcement.date) {
-  throw new Error('올바른 결혼 날짜를 YYYY-MM-DD 형식으로 입력하세요.');
-}
 if (!announcement.groom.name || !announcement.bride.name) throw new Error('두 사람의 이름을 입력하세요.');
 if (!/^https:\/\/.+\/$/.test(announcement.siteUrl)) throw new Error('siteUrl은 https:// 로 시작하고 / 로 끝나야 합니다.');
 

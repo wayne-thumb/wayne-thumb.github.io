@@ -1,6 +1,6 @@
 import { announcement as data } from './invitation.js';
-import { playWelcomeConfetti, studioConfetti, skyConfetti } from './confetti.js';
-import { motion, onEnter, releaseBalloons, addEffect, drift } from './motion.js';
+import { playWelcomeConfetti, studioConfetti } from './confetti.js';
+import { onEnter, addEffect, drift, handwrite } from './motion.js';
 
 // Always open at the top, where the greeting is, even on a reload or when coming back to the tab's
 // history. (index.html also turns off the browser's own scroll restoration as early as it can.)
@@ -19,17 +19,11 @@ const make = (tag, className, value) => {
   if (value !== undefined) node.textContent = value;
   return node;
 };
-// The day is only ever a small line, without its weekday: there is nothing to come to on it.
-const dateLabel = new Intl.DateTimeFormat('ko-KR', {
-  timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric'
-}).format(new Date(`${data.date}T00:00:00+09:00`));
 const couple = `${data.groom.name} · ${data.bride.name}`;
 
 document.title = `${couple}, 부부가 되었습니다`;
-text('[data-date]', dateLabel);
 text('[data-signature]', `${couple} 드림`);
 text('#english-names', `${data.groom.english} & ${data.bride.english}`);
-text('#closing-title', data.closing.title);
 text('#closing-line', data.closing.line);
 // Each line of the headline and the letter is its own piece so it can arrive on its own beat.
 $('#headline').replaceChildren(...data.headline.flatMap((line, index) => {
@@ -164,15 +158,11 @@ data.gallery.forEach((group, index) => {
   $('#gallery').append(block);
 });
 $('#closing-photo').replaceWith(photoImage(data.closing, fullWidth));
-
-// The day is marked with a heart balloon like the ones the two are holding; tapping it lets more go.
-if (motion) {
-  const heart = make('button', 'heart-balloon');
-  heart.type = 'button';
-  heart.setAttribute('aria-label', '하트 풍선 날리기');
-  heart.addEventListener('click', () => releaseBalloons(7));
-  $('#date-heart').replaceWith(heart);
-}
+// The two sign the last photo by hand, he a moment after she has begun. Her writing climbs across the photo
+// and his comes down, so that the two notes lean in over them like a roof. The numbers are that slope in
+// degrees (negative climbs), when the writing starts once the photo is reached, and how long it takes.
+handwrite($('.thanks-bride'), { tilt: -17, start: 0.5, time: 1.7 });
+handwrite($('.thanks-groom'), { tilt: 12, start: 1.2, time: 1.5 });
 
 let toastTimer;
 function toast(message) {
@@ -210,45 +200,81 @@ $('#share').addEventListener('click', async () => {
   await copy(pageUrl(), '링크를 복사했습니다.');
 });
 
-// Two links, one page: the accounts appear only at <site>/<gift.path>, which the build publishes as the
+// Two links, one page: the accounts are offered only at <site>/<gift.path>, which the build publishes as the
 // same page one folder down. (?mode=<gift.path> does the same where that folder does not exist, as in `npm run dev`.)
 const gift = data.gift ?? {};
 const folder = window.location.pathname.replace(/index\.html$/, '').replace(/\/+$/, '');
 const giftLink = Boolean(gift.path) && (folder.endsWith(`/${gift.path}`)
   || new URLSearchParams(window.location.search).get('mode') === gift.path);
 const showGift = Boolean(gift.accounts?.length) && giftLink;
+// The page behind the photos takes its colours from them (each group's tone), and the gallery runs through
+// them as one sky: a group starts on its own first colour and ends on the first colour of the group after it.
 // A night group at the very end thins into the morning sky of the last photo. On the link with the accounts
-// it ends squarely instead, and the accounts start on their own sheet of paper below it.
-const lastGroup = $('#gallery').lastElementChild;
+// the night ends as it is, and it is the accounts, on a sheet of paper of their own, that the morning comes up behind.
+const tones = data.gallery.map((group) => [group.tone ?? []].flat());
+const groups = [...$('#gallery').children];
+const lastGroup = groups.at(-1);
+const dawn = Boolean(lastGroup?.matches('.night')) && !showGift;
+groups.forEach((block, index) => {
+  if (!tones[index].length) return;
+  const colours = [...tones[index], tones[index + 1]?.[0] ?? tones[index].at(-1)];
+  // The morning takes only the last stretch of the night, below its photos.
+  if (index === groups.length - 1 && dawn) colours.splice(-1, 1, `${colours.at(-1)} calc(100% - 190px)`, 'var(--sky-top)');
+  block.style.setProperty('--ground', `linear-gradient(${colours.join(',')})`);
+  // Room below the photos for the day to finish turning into night.
+  if (data.gallery[index + 1]?.night && !data.gallery[index].night) block.classList.add('into-night');
+});
+if (tones[0]?.length) $('.gallery').style.setProperty('--first', tones[0][0]);
 if (lastGroup?.matches('.night')) {
-  if (showGift) $('#gift').classList.add('after-night');
-  else lastGroup.classList.add('dawn');
+  if (showGift) {
+    $('#gift').classList.add('after-night');
+    if (tones.at(-1).length) $('#gift').style.setProperty('--from', tones.at(-1).at(-1));
+  } else lastGroup.classList.add('dawn');
 }
 if (showGift) {
   text('#gift-title', gift.title);
   text('#gift-note', gift.note);
-  for (const account of gift.accounts) {
+  // Whose account each one is can be read straight away. The number is not laid out in the open:
+  // each has its own button, so someone on the groom's side or the bride's opens only the one they need.
+  gift.accounts.forEach((account, index) => {
     const item = make('li');
+    const head = make('div', 'account-head');
+    const fold = make('div', 'account-fold');
+    const body = make('div', 'account-body');
+    const toggle = make('button', 'account-toggle');
     const copyButton = make('button', 'account-copy', '복사');
+    fold.id = `account-${index + 1}`;
+    toggle.type = 'button';
+    toggle.setAttribute('aria-controls', fold.id);
+    const show = (open) => {
+      item.classList.toggle('open', open);
+      toggle.textContent = open ? '계좌 접기' : '계좌 보기';
+      toggle.setAttribute('aria-label', `${account.label} ${toggle.textContent}`);
+      toggle.setAttribute('aria-expanded', open);
+    };
+    show(false);
+    toggle.addEventListener('click', () => show(!item.classList.contains('open')));
     copyButton.type = 'button';
     copyButton.setAttribute('aria-label', `${account.label} 계좌번호 복사`);
     copyButton.addEventListener('click', () => copy(`${account.bank} ${account.number}`, '계좌번호를 복사했습니다.'));
-    item.append(
-      make('span', 'account-label', account.label),
-      make('span', 'account-number', `${account.bank} ${account.number}`),
-      copyButton
-    );
-    if (account.holder) item.append(make('span', 'account-holder', `예금주 ${account.holder}`));
+    head.append(make('span', 'account-label', account.label), toggle);
+    body.append(make('span', 'account-bank', account.bank), make('span', 'account-number', account.number));
+    if (account.holder) body.append(make('span', 'account-holder', `예금주 ${account.holder}`));
+    body.append(copyButton);
+    // The extra wrapper is what lets the fold close to nothing (see .account-fold in styles.css).
+    const inner = make('div');
+    inner.append(body);
+    fold.append(inner);
+    item.append(head, fold);
     $('#account-list').append(item);
-  }
+  });
   $('#gift').hidden = false;
 }
 
-// Sections arrive as they are scrolled to. The day sends up balloons; the last bow gets its own confetti.
+// Sections arrive as they are scrolled to.
 const confetti = data.welcomeConfetti !== false;
 for (const node of document.querySelectorAll('.reveal')) {
-  if (node.matches('.date')) onEnter(node, 0.7, () => setTimeout(() => releaseBalloons(6), 900));
-  else if (node.matches('.closing')) onEnter(node, 0.5, () => { if (confetti && !$('.welcome-confetti')) playWelcomeConfetti(skyConfetti); });
+  if (node.matches('.closing')) onEnter(node, 0.5);
   else onEnter(node, node.matches('.letter') ? 0.72 : 0.86);
 }
 

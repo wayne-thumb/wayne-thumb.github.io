@@ -48,7 +48,6 @@
         <div class="cover-copy">
           <p class="cover-names"><span data-groom>나동규</span><span data-bride>이엄지</span></p>
           <h1 id="headline"><span>저희, 부부가</span> <span>되었습니다</span></h1>
-          <p class="cover-date" data-date>2027년 2월 14일</p>
         </div>
       </header>
 
@@ -61,13 +60,6 @@
         <p class="letter-sign rise" style="--i:12" data-signature>나동규 · 이엄지 드림</p>
       </section>
     </div>
-
-    <section class="date reveal" aria-labelledby="date-title">
-      <span class="heart-balloon" id="date-heart" aria-hidden="true"></span>
-      <h2 class="rise" id="date-title" style="--i:2">둘이 함께 써 내려갈 이야기의 첫날</h2>
-      <p class="date-day rise" style="--i:3" data-date>2027년 2월 14일</p>
-      <p class="date-note rise" style="--i:4">별도의 결혼식은 진행하지 않습니다.</p>
-    </section>
 
     <section class="intro reveal" aria-labelledby="intro-title">
       <h2 class="rise" id="intro-title">저희를 소개합니다</h2>
@@ -91,17 +83,22 @@
     </section>
 
     <section class="gift reveal" id="gift" aria-labelledby="gift-title" hidden>
-      <h2 class="rise" id="gift-title">마음 전하실 곳</h2>
-      <p class="gift-note rise" style="--i:1" id="gift-note"></p>
-      <ul class="rise" style="--i:2" id="account-list"></ul>
+      <div class="gift-sheet">
+        <h2 class="rise" id="gift-title">마음 전하실 곳</h2>
+        <p class="gift-note rise" style="--i:1" id="gift-note"></p>
+        <ul class="rise" style="--i:2" id="account-list"></ul>
+      </div>
     </section>
 
-    <section class="closing reveal" aria-labelledby="closing-title">
+    <section class="closing reveal" aria-label="마지막 인사">
       <div id="closing-photo"></div>
       <div class="closing-copy">
-        <h2 class="rise" id="closing-title">고맙습니다</h2>
-        <p class="rise" style="--i:2" id="closing-line">서로의 가장 가까운 편이 되어
+        <p class="rise" id="closing-line">서로의 가장 가까운 편이 되어
 다정하게 잘 살겠습니다.</p>
+      </div>
+      <div class="thanks">
+        <img class="thanks-bride" src="./assets/thanks_thumb.svg" width="301" height="163" loading="lazy" decoding="async" alt="손글씨: 감사합니다! 이엄지">
+        <img class="thanks-groom" src="./assets/thanks_wayne.svg" width="368" height="234" loading="lazy" decoding="async" alt="손글씨: 감사합니다! 나동규">
       </div>
     </section>
 

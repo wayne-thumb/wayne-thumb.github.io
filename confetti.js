@@ -1,13 +1,10 @@
-// Round paper confetti, like the pieces in the studio photo. The hues stay the same in both sets;
-// only their depth changes so they read against what is behind them.
-// Over the blue sky: dress white, hydrangea blue, heart-balloon red, tulip yellow, studio pink.
-export const skyConfetti = ['#ffffff', '#bfe0f7', '#e5343b', '#f6c935', '#ffc9d6'];
-// Over the pale studio backdrop, white would vanish, so it gives way to the orange in the photo's
-// own confetti, and the blue and pink are a shade deeper.
+// Round paper confetti, like the pieces in the studio photo, in the photo's own colours: the orange of its
+// confetti, hydrangea blue, heart-balloon red, tulip yellow, studio pink. The blue and the pink are a shade
+// deep so that they read against the pale studio backdrop, where white would vanish.
 export const studioConfetti = ['#f5843c', '#86c2f0', '#e5343b', '#f6c935', '#ff9dbb'];
 
 // One generous, energetic burst. No external library or persistent animation.
-export function playWelcomeConfetti(colors = skyConfetti) {
+export function playWelcomeConfetti(colors = studioConfetti) {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (reducedMotion.matches || document.hidden) return;
 

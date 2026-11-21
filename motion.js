@@ -53,23 +53,6 @@ function whileVisible(node, onChange) {
   }).observe(node);
 }
 
-// Heart balloons, like the ones in the photos, float up across the whole screen.
-let flights = 0;
-export function releaseBalloons(count) {
-  if (!motion || flights >= 3) return;
-  flights++;
-  const layer = element('div', 'balloons');
-  layer.setAttribute('aria-hidden', 'true');
-  for (let index = 0; index < count; index++) {
-    const balloon = element('span', Math.random() < 0.25 ? 'balloon balloon-clear' : 'balloon');
-    balloon.style.cssText = `--x:${random(3, 84)}%;--size:${random(38, 70)}px;--drift:${random(-50, 50)}px;--time:${random(4.6, 7.4)}s;--delay:${random(0, 1.1)}s`;
-    balloon.append(element('i', ''));
-    layer.append(balloon);
-  }
-  document.body.append(layer);
-  setTimeout(() => { layer.remove(); flights--; }, 9500);
-}
-
 // A photo's own small weather: balloons, soap bubbles, or ginkgo leaves drifting through it,
 // or sparks crackling where the sparkler is. `at` is [x, y] within the photo, 0 to 1.
 const pieces = { balloons: 4, bubbles: 11, leaves: 8 };
@@ -182,6 +165,85 @@ function crackle(frame, layer, [x, y]) {
     nextBurst = last + 200;
     requestAnimationFrame(draw);
   });
+}
+
+// A handwritten note is written out, one touch of the pen after another, instead of simply appearing.
+// The note is an <img> of an SVG in which every <path> is one touch of the pen. The image is swapped for the
+// SVG itself, and each path is given a mask holding one broad line laid across it from corner to corner.
+// Drawing that line (.pen in styles.css) uncovers the path roughly the way the pen went over it.
+// The paths are taken in the order a hand reaches them: line by line, left to right, and the upper parts of
+// a letter before what is written under them.
+// `tilt` is how far the writing climbs (negative) or falls across the page, in degrees. `start` and `time`
+// are seconds, counted from when the section arrives. Where the SVG cannot be fetched the image simply stays.
+const SVG = 'http://www.w3.org/2000/svg';
+let notes = 0;
+export async function handwrite(img, { tilt = 0, start = 0, time = 1.6 } = {}) {
+  if (!motion || !img) return;
+  let source;
+  try {
+    const response = await fetch(img.src);
+    if (!response.ok) return;
+    source = new DOMParser().parseFromString(await response.text(), 'image/svg+xml').documentElement;
+  } catch {
+    return;
+  }
+  if (source.localName !== 'svg' || !img.isConnected) return;
+  const svg = document.importNode(source, true);
+  svg.setAttribute('class', img.className);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', img.alt);
+  // The size comes from the stylesheet, as it did for the image.
+  svg.removeAttribute('width');
+  svg.removeAttribute('height');
+  img.replaceWith(svg);
+
+  // Where each touch sits once the writing is turned level.
+  const level = -tilt * Math.PI / 180;
+  const touches = [...svg.querySelectorAll('path')].map((path) => {
+    const box = path.getBBox();
+    const x = box.x + box.width / 2, y = box.y + box.height / 2;
+    return { path, box, along: x * Math.cos(level) - y * Math.sin(level), down: x * Math.sin(level) + y * Math.cos(level) };
+  });
+  if (!touches.length) return;
+  // A new line of writing starts wherever the touches, taken from the top, leave a gap most of a letter high.
+  const heights = touches.map(({ box }) => box.height).sort((a, b) => a - b);
+  const gap = heights[Math.floor(heights.length / 2)] * 0.75;
+  touches.sort((a, b) => a.down - b.down);
+  let line = 0, top = touches[0].down;
+  touches.forEach((touch, index) => {
+    if (index && touch.down - touches[index - 1].down > gap) { line++; top = touch.down; }
+    touch.line = line;
+    touch.order = touch.along + (touch.down - top) * 0.5;
+  });
+  touches.sort((a, b) => a.line - b.line || a.order - b.order);
+
+  const view = svg.viewBox.baseVal;
+  const name = `note${++notes}`;
+  const defs = document.createElementNS(SVG, 'defs');
+  const reach = touches.reduce((sum, { box }) => sum + Math.hypot(box.width, box.height), 0);
+  let at = start;
+  touches.forEach(({ path, box, line }, index) => {
+    // A little wider than the path's own box, to take in the thickness of its outline.
+    const x = box.x - 6, y = box.y - 6, width = box.width + 12, height = box.height + 12;
+    const length = Math.hypot(width, height);
+    const mask = document.createElementNS(SVG, 'mask');
+    const pen = document.createElementNS(SVG, 'line');
+    mask.id = `${name}-${index}`;
+    for (const [key, value] of Object.entries({ maskUnits: 'userSpaceOnUse', x: view.x, y: view.y, width: view.width, height: view.height })) mask.setAttribute(key, value);
+    // Broad enough that, drawn to its end, the line covers the box to its far corners.
+    for (const [key, value] of Object.entries({ class: 'pen', x1: x, y1: y, x2: x + width, y2: y + height, stroke: '#fff', 'stroke-width': 2 * width * height / length + 2 })) pen.setAttribute(key, value);
+    // The hand lifts and moves down for the next line; a longer touch takes longer to write.
+    if (index && line !== touches[index - 1].line) at += 0.16;
+    const lasts = Math.max(0.05, time * Math.hypot(box.width, box.height) / reach);
+    pen.style.setProperty('--length', length.toFixed(1));
+    pen.style.setProperty('--at', `${at.toFixed(3)}s`);
+    pen.style.setProperty('--for', `${lasts.toFixed(3)}s`);
+    at += lasts + 0.012;
+    mask.append(pen);
+    defs.append(mask);
+    path.setAttribute('mask', `url(#${mask.id})`);
+  });
+  svg.prepend(defs);
 }
 
 // Rows of photos drift sideways on their own, and keep drifting while the page is scrolled past them.
