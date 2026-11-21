@@ -51,7 +51,10 @@ if (giftPath) {
   await mkdir(`dist/${giftPath}`, { recursive: true });
   await writeFile(`dist/${giftPath}/index.html`, html
     .replace(/(["' ,])\.\//g, '$1../')
-    .replace(/(<meta property="og:url" content=")[^"]*/, (_, prefix) => `${prefix}${escape(announcement.siteUrl)}${giftPath}/`));
+    .replace(/(<meta property="og:url" content=")[^"]*/, (_, prefix) => `${prefix}${escape(announcement.siteUrl)}${giftPath}/`)
+    // A heart in front of the title tells this link apart from the other one in a chat's link preview.
+    .replace(/<title>/, '<title>❤️ ')
+    .replace(/(<meta property="og:title" content=")/, '$1❤️ '));
 }
 await writeFile('dist/.nojekyll', '');
 console.log(`Built wedding announcement in dist/ (${photos.length} photos)`);

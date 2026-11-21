@@ -21,7 +21,6 @@ const make = (tag, className, value) => {
 };
 const couple = `${data.groom.name} · ${data.bride.name}`;
 
-document.title = `${couple}, 부부가 되었습니다`;
 text('[data-signature]', `${couple} 드림`);
 text('#english-names', `${data.groom.english} & ${data.bride.english}`);
 text('#closing-line', data.closing.line);
@@ -207,6 +206,8 @@ const folder = window.location.pathname.replace(/index\.html$/, '').replace(/\/+
 const giftLink = Boolean(gift.path) && (folder.endsWith(`/${gift.path}`)
   || new URLSearchParams(window.location.search).get('mode') === gift.path);
 const showGift = Boolean(gift.accounts?.length) && giftLink;
+// The link with the accounts has a heart in front of its title, as its link preview does (see scripts/build.mjs).
+document.title = `${giftLink ? '❤️ ' : ''}${couple}, 부부가 되었습니다`;
 // The page behind the photos takes its colours from them (each group's tone), and the gallery runs through
 // them as one sky: a group starts on its own first colour and ends on the first colour of the group after it.
 // A night group at the very end thins into the morning sky of the last photo. On the link with the accounts
