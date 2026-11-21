@@ -85,6 +85,7 @@ npm run photos -- portrait-bride cover   # 적은 id 만 다시 만들기
 
 | 파일 | 모양 |
 | --- | --- |
+| `qr-plain` | 사진 없이 검은 점만 있는 QR |
 | `qr-sunglasses` | 검은 점 QR 가운데 동그란 창에 선글라스 사진 |
 | `qr-night` | 가운데 창에 불꽃을 든 두 사람, 점마다 같은 밤 사진이 비침 |
 | `qr-dots-skyline`, `qr-dots-sparkler`, `qr-dots-sunglasses` | 사진 전체 위에 흰 점·검은 점을 찍은 모양 |

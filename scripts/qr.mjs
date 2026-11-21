@@ -1,8 +1,8 @@
-// QR 코드를 만듭니다: 소식만 전하는 주소와 계좌가 보이는 주소(/p) 각각, 가운데에 사진을 넣은 모양 두 가지와
-// 사진 위에 점을 찍은 모양 세 가지로.
+// QR 코드를 만듭니다: 소식만 전하는 주소와 계좌가 보이는 주소(/p) 각각, 사진 없는 모양, 가운데에 사진을 넣은
+// 모양 두 가지, 사진 위에 점을 찍은 모양 세 가지로.
 // 만든 그림을 다시 읽어 보아(여러 크기로 줄이고 흐리게 해서) 주소가 그대로 나오는지 확인하고, 아니면 실패합니다.
 // 주소가 바뀌면(invitation.js 의 siteUrl, gift.path) 다시 실행하세요. 인쇄한 QR 은 주소가 바뀌면 못 쓰게 됩니다.
-// 사용: npm install && npm run qr   →   qr/ 폴더에 PNG 열 장
+// 사용: npm install && npm run qr   →   qr/ 폴더에 PNG 열두 장
 import { createRequire } from 'node:module';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
@@ -86,6 +86,9 @@ async function make(url, suffix) {
     }
     console.log(`qr/${path.basename(file)}  →  ${url}`);
   }
+
+  // Plain: the same ink-black dots and corners on white, with no photo.
+  await save('qr-plain', [{ input: svg(dots(INK, 0) + patterns(INK)) }]);
 
   const windowRadius = n * 0.2;
   const windowSize = Math.round(windowRadius * 2 * unit);
