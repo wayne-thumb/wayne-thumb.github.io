@@ -13,15 +13,31 @@ const pro = '벨루어/02. 작가셀렉/01. 깔끔한색감';
 const studio = '모스앤코튼/인화용';
 
 // [id, 원본 경로, 옵션] — crop 은 원본 대비 비율(left, top, width, height)입니다.
+// hide 는 잘라 낸 사진에서 사진관 배경색(검정)으로 덮을 다각형들입니다.
+// points 는 원본 대비 비율 좌표, soft 는 가장자리를 흐리는 정도(원본 픽셀)입니다.
 const photos = [
   ['cover', `${studio}/COT_9384.jpg`, { large: true }],
   ['closing', `${sky}/DSC02646 0.jpg`, { large: true }],
   ['portrait-bride', `${studio}/MOS_6705.jpg`, { crop: [0.115, 0.445, 0.38, 0.3404] }],
   ['portrait-groom', `${studio}/MOS_6705.jpg`, { crop: [0.5, 0.445, 0.38, 0.3404] }],
   // The two sunglasses portraits are cut as a pair: sunglasses at the same height, faces the same size,
-  // each leaning toward the other across the gap between the frames.
-  ['shades-bride', `${studio}/MOS_6983.jpg`, { crop: [0.1618, 0.1177, 0.3462, 0.3077] }],
-  ['shades-groom', `${studio}/MOS_6983.jpg`, { crop: [0.497, 0.0241, 0.3894, 0.3461] }],
+  // each face near the middle of its own frame. In the photo the two stand cheek to cheek, so a cut with
+  // one face in the middle catches the other's as well; `hide` paints the black backdrop over that part.
+  // In hers the bride's arm still rests on the groom's shoulder. In his it is painted out along its own outline
+  // (the second shape), which leaves the line of his shoulder; the last, softest shape lets the near edge of
+  // his jacket come out of the dark instead of ending on a straight line.
+  ['shades-bride', `${studio}/MOS_6983.jpg`, {
+    crop: [0.2198, 0.1177, 0.3462, 0.3077],
+    hide: [{ soft: 4, points: [[0.4898, 0.0661], [0.6696, 0.0661], [0.6696, 0.2707], [0.5704, 0.2707], [0.5456, 0.2728], [0.5208, 0.2811], [0.5072, 0.2877], [0.5072, 0.1984], [0.4898, 0.1852]] }]
+  }],
+  ['shades-groom', `${studio}/MOS_6983.jpg`, {
+    crop: [0.431, 0.0241, 0.3894, 0.3461],
+    hide: [
+      { soft: 12, points: [[0.3224, -0.0331], [0.4898, -0.0331], [0.4898, 0.1852], [0.506, 0.2017], [0.506, 0.4464], [0.3224, 0.4464]] },
+      { soft: 3, points: [[0.496, 0.2811], [0.5456, 0.2712], [0.5704, 0.2662], [0.5826, 0.2646], [0.5848, 0.2695], [0.5871, 0.2758], [0.5866, 0.2808], [0.5833, 0.2844], [0.5786, 0.2887], [0.5712, 0.2978], [0.5647, 0.3027], [0.5585, 0.3061], [0.5461, 0.311], [0.537, 0.3142], [0.5288, 0.3188], [0.5208, 0.3198], [0.5134, 0.3201], [0.5129, 0.3241], [0.5094, 0.3307], [0.506, 0.3373], [0.496, 0.3406]] },
+      { soft: 40, points: [[0.3224, 0.3108], [0.5146, 0.3108], [0.5146, 0.4464], [0.3224, 0.4464]] }
+    ]
+  }],
   ['studio-shades-close', `${studio}/MOS_7025.jpg`],
   ['studio-glance', `${studio}/MOS_6397.jpg`],
   ['studio-ribbon', `${studio}/MOS_6653.jpg`],
@@ -59,8 +75,23 @@ const photos = [
   ['night-dance', `${pro}/DSC05303 0.jpg`]
 ];
 
+// The shapes of `hide`, drawn in black to the size of the cut.
+// They are drawn on a sheet larger than the cut and trimmed afterwards: a blur thins out toward the edge of
+// what it is drawn on, and along the cut's own edge that would let what is being hidden show through.
+function cover(shapes, region, width, height) {
+  const pad = Math.ceil(3 * Math.max(...shapes.map(({ soft = 0 }) => soft))) + 2;
+  const sheet = { width: region.width + 2 * pad, height: region.height + 2 * pad };
+  const body = shapes.map(({ soft = 0, points }, index) => {
+    const list = points.map(([x, y]) => `${x * width - region.left + pad},${y * height - region.top + pad}`).join(' ');
+    const blur = soft ? `<filter id="soft${index}" filterUnits="userSpaceOnUse" x="0" y="0" width="${sheet.width}" height="${sheet.height}"><feGaussianBlur stdDeviation="${soft}"/></filter>` : '';
+    return `${blur}<polygon points="${list}"${soft ? ` filter="url(#soft${index})"` : ''}/>`;
+  }).join('');
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${sheet.width}" height="${sheet.height}">${body}</svg>`))
+    .extract({ left: pad, top: pad, width: region.width, height: region.height }).png().toBuffer();
+}
+
 await mkdir(output, { recursive: true });
-for (const [id, file, { crop, large } = {}] of photos) {
+for (const [id, file, { crop, hide, large } = {}] of photos) {
   if (only.length && !only.includes(id)) continue;
   const input = path.join(source, file);
   const { width, height } = await sharp(input).metadata();
@@ -68,9 +99,11 @@ for (const [id, file, { crop, large } = {}] of photos) {
     left: Math.round(crop[0] * width), top: Math.round(crop[1] * height),
     width: Math.round(crop[2] * width), height: Math.round(crop[3] * height)
   };
+  // sharp resizes before it composites, so a cut that has parts to hide is covered in a pass of its own first.
+  const covered = hide && await sharp(input).extract(region).composite([{ input: await cover(hide, region, width, height) }]).png().toBuffer();
   for (const size of large ? [640, 1280, 1920] : [640, 1280]) {
-    let image = sharp(input);
-    if (region) image = image.extract(region);
+    let image = sharp(covered || input);
+    if (region && !covered) image = image.extract(region);
     await image.resize({ width: size }).webp({ quality: 76, effort: 5 }).toFile(path.join(output, `${id}-${size}.webp`));
   }
   console.log(id);
