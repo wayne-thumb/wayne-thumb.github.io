@@ -1,8 +1,8 @@
-// 소식만 전하는 주소(siteUrl)의 QR 코드를 만듭니다: 사진 없는 모양, 가운데에 사진을 넣은 모양 두 가지,
-// 사진 위에 점을 찍은 모양 네 가지로. 계좌가 보이는 주소(/p)는 QR 없이 링크로만 보냅니다.
+// QR 코드를 만듭니다. 소식만 전하는 주소(siteUrl)는 사진 없는 모양, 가운데에 사진을 넣은 모양 두 가지,
+// 사진 위에 점을 찍은 모양 네 가지로. 계좌가 보이는 주소(/p)는 어른들께 드릴 것 하나만, 가운데 빨간 하트로.
 // 만든 그림을 다시 읽어 보아(여러 크기로 줄이고 흐리게 해서) 주소가 그대로 나오는지 확인하고, 아니면 실패합니다.
 // 주소가 바뀌면(invitation.js 의 siteUrl) 다시 실행하세요. 인쇄한 QR 은 주소가 바뀌면 못 쓰게 됩니다.
-// 사용: npm install && npm run qr   →   qr/ 폴더에 PNG 일곱 장
+// 사용: npm install && npm run qr   →   qr/ 폴더에 PNG 여덟 장
 import { createRequire } from 'node:module';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
@@ -19,6 +19,8 @@ const outDir = path.resolve('qr');
 const SIZE = 1400;
 const INK = '#10151c';
 const NIGHT = '#0a1626';
+const RED = '#e5343b';
+const DEEP_RED = '#b3222a';
 
 const rounded = (x, y, size, radius, fill) => `<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="${radius}" fill="${fill}"/>`;
 const circle = (size) => Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="#fff"/></svg>`);
@@ -87,12 +89,25 @@ async function make(url, suffix) {
     console.log(`qr/${path.basename(file)}  →  ${url}`);
   }
 
-  // Plain: the same ink-black dots and corners on white, with no photo.
-  await save('qr-plain', [{ input: svg(dots(INK, 0) + patterns(INK)) }]);
-
   const windowRadius = n * 0.2;
   const windowSize = Math.round(windowRadius * 2 * unit);
   const windowAt = Math.round(SIZE / 2 - windowSize / 2);
+
+  // Heart, for the link with the accounts: the corners in the deep red of the heart balloon and a red heart
+  // in the middle, the same heart the page puts in front of that link's title. No photo, so it reads at a
+  // glance as "the other one", and its large shapes stay clear for older eyes and older phones.
+  if (suffix) {
+    const heart = (size) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 1.2 24 21.6"><path fill="${RED}" d="M12 21.2S3.9 16.3 1.3 11.2C-.6 7.4 1.3 2.8 5.8 2.8c2.5 0 4.5 1.4 6.2 3.7 1.7-2.3 3.7-3.7 6.2-3.7 4.5 0 6.4 4.6 4.5 8.4C20.1 16.3 12 21.2 12 21.2z"/></svg>`;
+    const heartSize = Math.round(windowSize * 0.84);
+    await save('qr-heart', [
+      { input: svg(dots(INK, windowRadius + 0.6) + patterns(DEEP_RED)) },
+      { input: Buffer.from(heart(heartSize)), left: Math.round(SIZE / 2 - heartSize / 2), top: Math.round(SIZE / 2 - heartSize / 2) }
+    ]);
+    return;
+  }
+
+  // Plain: the same ink-black dots and corners on white, with no photo.
+  await save('qr-plain', [{ input: svg(dots(INK, 0) + patterns(INK)) }]);
 
   // Sunglasses: an ink-black code on white, with the two in sunglasses in a round window in the middle.
   const shades = await sharp(await square(path.join(photos, '모스앤코튼/인화용/MOS_7025.jpg'), [0.03, -0.035, 0.9], windowSize))
@@ -147,3 +162,4 @@ async function make(url, suffix) {
 
 await mkdir(outDir, { recursive: true });
 await make(announcement.siteUrl, '');
+if (announcement.gift?.path) await make(`${announcement.siteUrl}${announcement.gift.path}`, `-${announcement.gift.path}`);
