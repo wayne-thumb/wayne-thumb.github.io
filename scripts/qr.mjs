@@ -1,8 +1,8 @@
-// QR 코드를 만듭니다: 소식만 전하는 주소와 계좌가 보이는 주소(/p) 각각, 사진 없는 모양, 가운데에 사진을 넣은
-// 모양 두 가지, 사진 위에 점을 찍은 모양 세 가지로.
+// 소식만 전하는 주소(siteUrl)의 QR 코드를 만듭니다: 사진 없는 모양, 가운데에 사진을 넣은 모양 두 가지,
+// 사진 위에 점을 찍은 모양 네 가지로. 계좌가 보이는 주소(/p)는 QR 없이 링크로만 보냅니다.
 // 만든 그림을 다시 읽어 보아(여러 크기로 줄이고 흐리게 해서) 주소가 그대로 나오는지 확인하고, 아니면 실패합니다.
-// 주소가 바뀌면(invitation.js 의 siteUrl, gift.path) 다시 실행하세요. 인쇄한 QR 은 주소가 바뀌면 못 쓰게 됩니다.
-// 사용: npm install && npm run qr   →   qr/ 폴더에 PNG 열두 장
+// 주소가 바뀌면(invitation.js 의 siteUrl) 다시 실행하세요. 인쇄한 QR 은 주소가 바뀌면 못 쓰게 됩니다.
+// 사용: npm install && npm run qr   →   qr/ 폴더에 PNG 일곱 장
 import { createRequire } from 'node:module';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
@@ -123,14 +123,15 @@ async function make(url, suffix) {
   // The corner patterns get a white backing so a scanner can still find them. `veil` faintly lightens or darkens
   // each module's square as well; photos with large bright areas need a touch of it to read at small sizes.
   const tileMask = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${tile}" height="${tile}"><rect width="${tile}" height="${tile}" rx="${unit * 2.4}" fill="#fff"/></svg>`);
-  async function dotted(name, file, cut, veil) {
+  // `dot` is the dots' radius in modules; a busy photo reads better with slightly larger dots.
+  async function dotted(name, file, cut, veil, dot = 0.24) {
     let body = '';
     for (let row = 0; row < n; row++) {
       for (let col = 0; col < n; col++) {
         if (inFinder(row, col) || inAlign(row, col)) continue;
         const isDark = qr.modules.data[row * n + col] === 1;
         if (veil) body += `<rect x="${at(col)}" y="${at(row)}" width="${unit + 0.5}" height="${unit + 0.5}" fill="${isDark ? '#000' : '#fff'}" fill-opacity="${veil}"/>`;
-        body += `<circle cx="${at(col) + unit / 2}" cy="${at(row) + unit / 2}" r="${unit * 0.24}" fill="${isDark ? '#070b12' : '#fff'}"/>`;
+        body += `<circle cx="${at(col) + unit / 2}" cy="${at(row) + unit / 2}" r="${unit * dot}" fill="${isDark ? '#070b12' : '#fff'}"/>`;
       }
     }
     for (const [row, col] of finders) body += rounded(at(col) - unit, at(row) - unit, 9 * unit, unit * 2, '#fff');
@@ -141,8 +142,8 @@ async function make(url, suffix) {
   await dotted('qr-dots-skyline', '벨루어/01. 셀렉/01. 깔끔한색감/DSC05114 0.jpg', [0, 0.2, 1], 0);
   await dotted('qr-dots-sparkler', '벨루어/02. 작가셀렉/01. 깔끔한색감/DSC03466 0.jpg', [0.045, 0.0967, 0.94], 0);
   await dotted('qr-dots-sunglasses', '모스앤코튼/인화용/MOS_6983.jpg', [0, 0.03, 1], 0.06);
+  await dotted('qr-dots-shades-close', '모스앤코튼/인화용/MOS_7025.jpg', [0, 0.08, 1], 0.06);
 }
 
 await mkdir(outDir, { recursive: true });
 await make(announcement.siteUrl, '');
-if (announcement.gift?.path) await make(`${announcement.siteUrl}${announcement.gift.path}`, `-${announcement.gift.path}`);
